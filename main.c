@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "parser.h"
+
+extern int yyparse();
+extern int yylex();
+
+int main(int argc, char** argv) {
+
+  extern FILE* yyin;
+
+  if (!strcmp(argv[1], "-scan")) {
+     
+    if((yyin = fopen(argv[2], "r")) == NULL) {
+      perror("an issue with reading models");
+      exit(1);
+    }
+
+    int token = 0;
+    while ((token = yylex())) {
+      printf("%d\n", token);
+      if(token == BAD_T) {
+	printf("scan failed\n");
+	return 1;
+      }
+    }
+
+    printf("scan successful\n");
+    fclose(yyin);    
+
+    return 0;
+  }
+
+  if (!strcmp(argv[1], "-parse")) {
+     
+    if((yyin = fopen(argv[2], "r")) == NULL) {
+      perror("an issue with reading models");
+      exit(1);
+    }
+
+    if(!yyparse()) {
+      printf("parse successful\n");
+      return 0;
+    } else {
+      printf("parse failed!\n");
+      return 1;
+    }
+
+    fclose(yyin);
+  }
+
+  
+  return 0;
+}

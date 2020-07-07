@@ -1,0 +1,147 @@
+Nieużywane symbole terminalne w gramatyce
+
+    BAD_T
+    IDENTIFIER_T
+    INTEGER_T
+    CHAR_T
+    ARRAY_KW_T
+    BOOLEAN_KW_T
+    CHAR_KW_T
+    ELSE_KW_T
+    FALSE_KW_T
+    FOR_KW_T
+    FUNCTION_KW_T
+    IF_KW_T
+    INTEGER_KW_T
+    PRINT_KW_T
+    RETURN_KW_T
+    STRING_KW_T
+    TRUE_KW_T
+    VOID_KW_T
+    WHILE_KW_T
+    LBRACKET_T
+    RBRACKET_T
+    LPAREN_T
+    RPAREN_T
+    LCURL_T
+    RCURL_T
+    COMMA_T
+    COLON_T
+    SEMICOLON_T
+    INC_T
+    DEC_T
+    NEG_T
+    EXP_T
+    TIMES_T
+    DIV_T
+    MOD_T
+    PLUS_T
+    MINUS_T
+    LT_T
+    LE_T
+    GT_T
+    GE_T
+    EQ_T
+    NEQ_T
+    AND_T
+    OR_T
+    ASSG_T
+
+
+Gramatyka
+
+    0 $accept: program $end
+
+    1 program: STRING_T
+
+
+Symbole terminalne i reguły, w których występują
+
+    $end (0) 0
+    error (256)
+    BAD_T (258)
+    IDENTIFIER_T (259)
+    INTEGER_T (260)
+    STRING_T (261) 1
+    CHAR_T (262)
+    ARRAY_KW_T (263)
+    BOOLEAN_KW_T (264)
+    CHAR_KW_T (265)
+    ELSE_KW_T (266)
+    FALSE_KW_T (267)
+    FOR_KW_T (268)
+    FUNCTION_KW_T (269)
+    IF_KW_T (270)
+    INTEGER_KW_T (271)
+    PRINT_KW_T (272)
+    RETURN_KW_T (273)
+    STRING_KW_T (274)
+    TRUE_KW_T (275)
+    VOID_KW_T (276)
+    WHILE_KW_T (277)
+    LBRACKET_T (278)
+    RBRACKET_T (279)
+    LPAREN_T (280)
+    RPAREN_T (281)
+    LCURL_T (282)
+    RCURL_T (283)
+    COMMA_T (284)
+    COLON_T (285)
+    SEMICOLON_T (286)
+    INC_T (287)
+    DEC_T (288)
+    NEG_T (289)
+    EXP_T (290)
+    TIMES_T (291)
+    DIV_T (292)
+    MOD_T (293)
+    PLUS_T (294)
+    MINUS_T (295)
+    LT_T (296)
+    LE_T (297)
+    GT_T (298)
+    GE_T (299)
+    EQ_T (300)
+    NEQ_T (301)
+    AND_T (302)
+    OR_T (303)
+    ASSG_T (304)
+
+
+Symbole nieterminalne i reguły, w których występują
+
+    $accept (50)
+        on left: 0
+    program (51)
+        on left: 1
+        on right: 0
+
+
+Stan 0
+
+    0 $accept: . program $end
+
+    STRING_T  przesunięcie, i przejście do stanu 1
+
+    program  przejście do stanu 2
+
+
+Stan 1
+
+    1 program: STRING_T .
+
+    $domyślnie  redukcja przy użyciu reguły 1 (program)
+
+
+Stan 2
+
+    0 $accept: program . $end
+
+    $end  przesunięcie, i przejście do stanu 3
+
+
+Stan 3
+
+    0 $accept: program $end .
+
+    $domyślnie  akceptowanie
