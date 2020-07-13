@@ -60,12 +60,268 @@ extern int yyerror( char *str );
 %token OR_T;
 %token ASSG_T;
 
+%left INC_T DEC_T
+%right UNARYOP
+%right EXP_T
+%left TIMES_T DIV_T MOD_T
+%left PLUS_T MINUS_T
+%left LT_T LE_T GT_T GE_T EQ_T NEQ_T
+%left AND_T OR_T
+%left ASSG_T
+
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE_KW_T
+
 %start program
 %%
 
-program : STRING_T
- {
- };
+program: declarations
+{
+  //todo*
+};
+
+declarations: declaration declarations
+{
+  //todo*
+}
+| declaration
+{
+  //todo*
+};
+
+declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RPAREN_T optfbody 
+{
+  //todo*
+}
+| IDENTIFIER_T COLON_T type optinit SEMICOLON_T
+{
+  //todo*
+};
+
+returntype: CHAR_KW_T | BOOLEAN_KW_T | INTEGER_KW_T | STRING_KW_T | VOID_KW_T
+{ 
+ //todo*
+};
+
+type: INTEGER_KW_T | BOOLEAN_KW_T | STRING_KW_T | CHAR_KW_T
+{
+  //todonow - the full type algebra
+};
+
+optinit:
+{
+  //standard init val?
+  //or nothing?
+  //todo*
+}
+| ASSG_T expression
+{
+  //todo*
+};
+
+optfbody: SEMICOLON_T
+{
+  //standard init val?
+  //or nothing?
+  //todo*
+}
+| ASSG_T LCURL_T statements RCURL_T
+{
+  //todo*
+};
+
+statements: statement statements
+{
+  //todo*
+}
+| statement
+{
+  //todo*
+}
+;
+
+statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
+{
+  //declaration
+  //todo* 
+}
+| expression SEMICOLON_T
+{
+  //todo*
+}
+| IF_KW_T LPAREN_T expression RPAREN_T statement %prec LOWER_THAN_ELSE
+{
+  //todo*  
+}
+| IF_KW_T LPAREN_T expression RPAREN_T statement ELSE_KW_T statement
+{
+  //todo*  
+}
+| FOR_KW_T LPAREN_T expression SEMICOLON_T expression SEMICOLON_T expression RPAREN_T statement
+{
+  //todo*  
+}
+| PRINT_KW_T exprlist SEMICOLON_T
+{
+  //todo*
+}
+| RETURN_KW_T expression SEMICOLON_T
+{
+  //todo*
+}
+| LCURL_T statements RCURL_T
+{
+  //todo*  
+}
+;
+
+
+paramlist: 
+{
+  //todo*
+}
+
+| IDENTIFIER_T COLON_T type paramlist
+{
+  //todo*
+};
+
+expression: LPAREN_T expression RPAREN_T
+{
+  //todo*
+  //todonow - array
+}
+| TRUE_KW_T
+{
+  //todo*
+}
+| FALSE_KW_T
+{
+  //todo*
+}
+| CHAR_T
+{
+  //todo*
+}
+| INTEGER_T
+{
+  //todo*
+}
+| IDENTIFIER_T
+{
+  //todo*
+}
+| STRING_T
+{
+  //todo*
+}
+| LCURL_T arrayelementlist RCURL_T 
+{
+  //todo*
+}  
+| IDENTIFIER_T LBRACKET_T expression RBRACKET_T
+{
+  //todo*
+}
+| IDENTIFIER_T LPAREN_T exprlist RPAREN_T
+{
+  //todo*
+}
+| IDENTIFIER_T INC_T
+{
+  //todo*
+}
+| IDENTIFIER_T DEC_T
+{
+  //todo*
+}
+| MINUS_T expression %prec UNARYOP
+{
+  //todo*
+}
+| NEG_T expression %prec UNARYOP
+{
+  //todo*
+}
+| expression EXP_T expression
+{
+  //todo*
+}
+| expression TIMES_T expression
+{
+  //todo*
+}
+| expression DIV_T expression
+{
+  //todo*
+}
+| expression MOD_T expression
+{
+  //todo*
+}
+| expression PLUS_T expression
+{
+  //todo*
+}
+| expression MINUS_T expression
+{
+  //todo*
+}
+| expression LT_T expression
+{
+  //todo*
+}
+| expression LE_T expression
+{
+  //todo*
+}
+| expression GT_T expression
+{
+  //todo*
+}
+| expression GE_T expression
+{
+  //todo*
+}
+| expression EQ_T expression
+{
+  //todo*
+}
+| expression NEQ_T expression
+{
+  //todo*
+}
+| expression AND_T expression
+{
+  //todo*
+}
+| expression OR_T expression
+{
+  //todo*
+}
+| IDENTIFIER_T ASSG_T expression
+{
+  //todo*
+}
+;
+
+arrayelementlist: expression
+{
+  //todo*
+}
+| expression COMMA_T arrayelementlist
+{
+  //todo*
+}
+
+exprlist: expression
+{
+  //todo*
+}
+| expression COMMA_T exprlist
+{
+  //todo*
+}
 
 %%
 

@@ -19,7 +19,6 @@ int main(int argc, char** argv) {
 
     int token = 0;
     while ((token = yylex())) {
-      printf("%d\n", token);
       if(token == BAD_T) {
 	printf("scan failed\n");
 	return 1;
@@ -33,7 +32,6 @@ int main(int argc, char** argv) {
   }
 
   if (!strcmp(argv[1], "-parse")) {
-     
     if((yyin = fopen(argv[2], "r")) == NULL) {
       perror("an issue with reading models");
       exit(1);
