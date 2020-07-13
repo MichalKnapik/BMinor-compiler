@@ -173,10 +173,6 @@ statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
   //todo*  
 }
-| PRINT_KW_T SEMICOLON_T
-{
-  //todo*
-}
 | PRINT_KW_T exprlist SEMICOLON_T
 {
   //todo*
@@ -357,11 +353,21 @@ arrayelementlist: expression
   //todo*
 }
 
-exprlist: expression
+exprlist: 
 {
   //todo*
 }
-| expression COMMA_T exprlist
+| exprlist_n
+{
+  //todo*
+};
+
+exprlist_n:
+expression
+{
+  //todo*
+}
+| expression COMMA_T exprlist_n
 {
   //todo*
 }
