@@ -75,7 +75,11 @@ extern int yyerror( char *str );
 %start program
 %%
 
-program: declarations
+program:
+{
+  //todo*  
+}
+| declarations
 {
   //todo*
 };
@@ -103,9 +107,18 @@ returntype: CHAR_KW_T | BOOLEAN_KW_T | INTEGER_KW_T | STRING_KW_T | VOID_KW_T
  //todo*
 };
 
-type: INTEGER_KW_T | BOOLEAN_KW_T | STRING_KW_T | CHAR_KW_T
+type: INTEGER_KW_T | BOOLEAN_KW_T | STRING_KW_T | CHAR_KW_T | ARRAY_KW_T LBRACKET_T arrsize RBRACKET_T type
 {
-  //todonow - the full type algebra
+  //todo*
+};
+
+arrsize:
+{
+  //todo*  
+}
+| INTEGER_T
+{
+  //todo*  
 };
 
 optinit:
@@ -137,8 +150,7 @@ statements: statement statements
 | statement
 {
   //todo*
-}
-;
+};
 
 statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
@@ -157,9 +169,13 @@ statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
   //todo*  
 }
-| FOR_KW_T LPAREN_T expression SEMICOLON_T expression SEMICOLON_T expression RPAREN_T statement
+| FOR_KW_T LPAREN_T optexpression SEMICOLON_T optexpression SEMICOLON_T optexpression RPAREN_T statement
 {
   //todo*  
+}
+| PRINT_KW_T SEMICOLON_T
+{
+  //todo*
 }
 | PRINT_KW_T exprlist SEMICOLON_T
 {
@@ -172,16 +188,27 @@ statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 | LCURL_T statements RCURL_T
 {
   //todo*  
-}
-;
+};
 
-
-paramlist: 
+paramlist:
 {
   //todo*
 }
+| noneptyparamlist
+{
+  //todo*  
+}; 
 
-| IDENTIFIER_T COLON_T type paramlist
+noneptyparamlist: param 
+{
+  //todo*
+}
+| param COMMA_T noneptyparamlist
+{
+  //todo*
+};
+
+param: IDENTIFIER_T COLON_T type 
 {
   //todo*
 };
@@ -189,7 +216,6 @@ paramlist:
 expression: LPAREN_T expression RPAREN_T
 {
   //todo*
-  //todonow - array
 }
 | TRUE_KW_T
 {
@@ -219,7 +245,7 @@ expression: LPAREN_T expression RPAREN_T
 {
   //todo*
 }  
-| IDENTIFIER_T LBRACKET_T expression RBRACKET_T
+| IDENTIFIER_T arrindexselect
 {
   //todo*
 }
@@ -299,11 +325,28 @@ expression: LPAREN_T expression RPAREN_T
 {
   //todo*
 }
-| IDENTIFIER_T ASSG_T expression
+| expression ASSG_T expression
+{
+  //todo*
+};
+
+arrindexselect: LBRACKET_T expression RBRACKET_T
 {
   //todo*
 }
-;
+| LBRACKET_T expression RBRACKET_T arrindexselect
+{
+  //todo*
+};
+
+optexpression:
+{
+  //todo*
+}
+| expression
+{
+  //todo*
+};
 
 arrayelementlist: expression
 {
