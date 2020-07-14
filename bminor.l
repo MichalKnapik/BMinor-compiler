@@ -4,8 +4,11 @@
 
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "decl.h"
 #include "parser.h"
+
 %}
 
 /* reserved words */
@@ -89,10 +92,22 @@ CHAR (\'([\x00-\x5B]|[\x5D-\x7F])\')|(\'\\[\x00-\x7F]\')
 "||"                     return OR_T;
 "="                      return ASSG_T;
 
-{IDENTIFIER}             return IDENTIFIER_T;
-{INTEGER}                return INTEGER_T;
-{STRING}                 return STRING_T;
-{CHAR}                   return CHAR_T;
+{IDENTIFIER}             {
+                          yylval.stringval = strdup(yytext);
+                          return IDENTIFIER_T;
+                         }
+{INTEGER}                {
+                          yylval.intval = atoi(yytext);
+                          return INTEGER_T;
+                         }
+{STRING}                 {
+                          yylval.stringval = strdup(yytext);
+                          return STRING_T;
+                         }
+{CHAR}                   {
+                          yylval.charval = *yytext;
+                          return CHAR_T;
+                         }
 
 .			 return BAD_T;
 %%

@@ -1398,11 +1398,14 @@ char *yytext;
  
 #line 6 "bminor.l"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "decl.h"
 #include "parser.h"
-#line 1404 "scanner.c"
+
+#line 1407 "scanner.c"
 /* reserved words */
-#line 1406 "scanner.c"
+#line 1409 "scanner.c"
 
 #define INITIAL 0
 #define comment 1
@@ -1619,10 +1622,10 @@ YY_DECL
 		}
 
 	{
-#line 33 "bminor.l"
+#line 36 "bminor.l"
 
 
-#line 1626 "scanner.c"
+#line 1629 "scanner.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1692,294 +1695,306 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 35 "bminor.l"
+#line 38 "bminor.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 37 "bminor.l"
+#line 40 "bminor.l"
 BEGIN(comment);
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 38 "bminor.l"
+#line 41 "bminor.l"
 
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 39 "bminor.l"
+#line 42 "bminor.l"
 
 	YY_BREAK
 case YY_STATE_EOF(comment):
-#line 40 "bminor.l"
+#line 43 "bminor.l"
 return BAD_T;    
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 41 "bminor.l"
+#line 44 "bminor.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 42 "bminor.l"
+#line 45 "bminor.l"
 BEGIN(lcomment);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 43 "bminor.l"
+#line 46 "bminor.l"
 
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 44 "bminor.l"
+#line 47 "bminor.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 46 "bminor.l"
+#line 49 "bminor.l"
 return ARRAY_KW_T;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 47 "bminor.l"
+#line 50 "bminor.l"
 return BOOLEAN_KW_T;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 48 "bminor.l"
+#line 51 "bminor.l"
 return CHAR_KW_T;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 49 "bminor.l"
+#line 52 "bminor.l"
 return ELSE_KW_T;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 50 "bminor.l"
+#line 53 "bminor.l"
 return FALSE_KW_T;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 51 "bminor.l"
+#line 54 "bminor.l"
 return FOR_KW_T;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 52 "bminor.l"
+#line 55 "bminor.l"
 return FUNCTION_KW_T;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 53 "bminor.l"
+#line 56 "bminor.l"
 return IF_KW_T;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 54 "bminor.l"
+#line 57 "bminor.l"
 return INTEGER_KW_T;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 55 "bminor.l"
+#line 58 "bminor.l"
 return PRINT_KW_T;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 56 "bminor.l"
+#line 59 "bminor.l"
 return RETURN_KW_T;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 57 "bminor.l"
+#line 60 "bminor.l"
 return STRING_KW_T;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 58 "bminor.l"
+#line 61 "bminor.l"
 return TRUE_KW_T;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 59 "bminor.l"
+#line 62 "bminor.l"
 return VOID_KW_T;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 60 "bminor.l"
+#line 63 "bminor.l"
 return WHILE_KW_T;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 62 "bminor.l"
+#line 65 "bminor.l"
 return LBRACKET_T;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 63 "bminor.l"
+#line 66 "bminor.l"
 return RBRACKET_T;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 64 "bminor.l"
+#line 67 "bminor.l"
 return LPAREN_T;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 65 "bminor.l"
+#line 68 "bminor.l"
 return RPAREN_T;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 66 "bminor.l"
+#line 69 "bminor.l"
 return LCURL_T;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 67 "bminor.l"
+#line 70 "bminor.l"
 return RCURL_T;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 68 "bminor.l"
+#line 71 "bminor.l"
 return COMMA_T;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 69 "bminor.l"
+#line 72 "bminor.l"
 return COLON_T;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 70 "bminor.l"
+#line 73 "bminor.l"
 return SEMICOLON_T;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 72 "bminor.l"
+#line 75 "bminor.l"
 return INC_T;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 73 "bminor.l"
+#line 76 "bminor.l"
 return DEC_T;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 74 "bminor.l"
+#line 77 "bminor.l"
 return NEG_T;
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 75 "bminor.l"
+#line 78 "bminor.l"
 return EXP_T;
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 76 "bminor.l"
+#line 79 "bminor.l"
 return TIMES_T;
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 77 "bminor.l"
+#line 80 "bminor.l"
 return DIV_T;
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 78 "bminor.l"
+#line 81 "bminor.l"
 return MOD_T;
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 79 "bminor.l"
+#line 82 "bminor.l"
 return PLUS_T;
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 80 "bminor.l"
+#line 83 "bminor.l"
 return MINUS_T;
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 82 "bminor.l"
+#line 85 "bminor.l"
 return LT_T;
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 83 "bminor.l"
+#line 86 "bminor.l"
 return LE_T;
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 84 "bminor.l"
+#line 87 "bminor.l"
 return GT_T;
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 85 "bminor.l"
+#line 88 "bminor.l"
 return GE_T;
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 86 "bminor.l"
+#line 89 "bminor.l"
 return EQ_T;
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 87 "bminor.l"
+#line 90 "bminor.l"
 return NEQ_T;
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 88 "bminor.l"
+#line 91 "bminor.l"
 return AND_T;
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 89 "bminor.l"
+#line 92 "bminor.l"
 return OR_T;
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 90 "bminor.l"
+#line 93 "bminor.l"
 return ASSG_T;
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 92 "bminor.l"
-return IDENTIFIER_T;
+#line 95 "bminor.l"
+{
+                          yylval.stringval = strdup(yytext);
+                          return IDENTIFIER_T;
+                         }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 93 "bminor.l"
-return INTEGER_T;
+#line 99 "bminor.l"
+{
+                          yylval.intval = atoi(yytext);
+                          return INTEGER_T;
+                         }
 	YY_BREAK
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 94 "bminor.l"
-return STRING_T;
+#line 103 "bminor.l"
+{
+                          yylval.stringval = strdup(yytext);
+                          return STRING_T;
+                         }
 	YY_BREAK
 case 54:
 /* rule 54 can match eol */
 YY_RULE_SETUP
-#line 95 "bminor.l"
-return CHAR_T;
+#line 107 "bminor.l"
+{
+                          yylval.charval = *yytext;
+                          return CHAR_T;
+                         }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 97 "bminor.l"
+#line 112 "bminor.l"
 return BAD_T;
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 98 "bminor.l"
+#line 113 "bminor.l"
 ECHO;
 	YY_BREAK
-#line 1983 "scanner.c"
+#line 1998 "scanner.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(lcomment):
 	yyterminate();
@@ -2956,6 +2971,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 98 "bminor.l"
+#line 113 "bminor.l"
 
 

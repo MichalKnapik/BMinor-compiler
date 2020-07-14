@@ -2,8 +2,8 @@ CC		= gcc
 CCOPTS  	= -g -Wall 
 BISOPTS	        = --report=all --graph 
 
-all:	parser.c scanner.c main.c
-	$(CC) $(CCOPTS) parser.c scanner.c main.c -o bminor
+all:	parser.c scanner.c 
+	$(CC) $(CCOPTS) parser.c scanner.c decl.c main.c -o bminor
 
 parser.c parser.h: bminor.y 
 	bison $(BISOPTS) --defines=parser.h --output=parser.c -v bminor.y

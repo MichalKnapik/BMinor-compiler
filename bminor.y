@@ -1,12 +1,24 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
+#include "decl.h"
+  
 extern int yylineno;
 extern char *yytext;
 extern int yylex();
-extern int yyerror( char *str );
+extern int yyerror(char *str);
 %}
+
+%union {
+  /* lexer token types */
+  char* stringval;
+  int intval;  
+  char charval;
+
+  /* parser (non)terminal types */
+  decl* decl_t;
+}
 
 %token BAD_T
 %token IDENTIFIER_T
@@ -60,6 +72,11 @@ extern int yyerror( char *str );
 %token OR_T;
 %token ASSG_T;
 
+%type <charval> CHAR_T
+%type <intval> INTEGER_T
+%type <stringval> STRING_T IDENTIFIER_T
+%type <decl_t> declaration declarations
+
 %left INC_T DEC_T
 %right UNARYOP
 %right EXP_T
@@ -82,24 +99,32 @@ program:
 | declarations
 {
   //todo*
+  decl* d = $1;
+  while (d != NULL) {
+    printf("(%s)\n", d->name);
+    d = d->next;
+  }
 };
 
 declarations: declaration declarations
 {
-  //todo*
+  $1->next = $2;
+  $$ = $1;
 }
 | declaration
-{
-  //todo*
-};
+;
 
 declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RPAREN_T optfbody 
 {
-  //todo*
+  //todonow
+  decl* dc = decl_create($1, NULL, NULL, NULL, NULL);
+  $$ = dc;
 }
 | IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
-  //todo*
+  //todonow
+  decl* dc = decl_create(strdup($1), NULL, NULL, NULL, NULL);
+  $$ = dc;  
 };
 
 returntype: CHAR_KW_T | BOOLEAN_KW_T | INTEGER_KW_T | STRING_KW_T | VOID_KW_T
@@ -117,9 +142,7 @@ arrsize:
   //todo*  
 }
 | INTEGER_T
-{
-  //todo*  
-};
+;
 
 optinit:
 {
@@ -214,29 +237,11 @@ expression: LPAREN_T expression RPAREN_T
   //todo*
 }
 | TRUE_KW_T
-{
-  //todo*
-}
 | FALSE_KW_T
-{
-  //todo*
-}
 | CHAR_T
-{
-  //todo*
-}
 | INTEGER_T
-{
-  //todo*
-}
 | IDENTIFIER_T
-{
-  //todo*
-}
 | STRING_T
-{
-  //todo*
-}
 | LCURL_T arrayelementlist RCURL_T 
 {
   //todo*
@@ -375,6 +380,6 @@ expression
 %%
 
 int yyerror(char* s) {
-    printf("PARSE ERROR in line %d\n", yylineno);
+    printf("PARSE ERROR in line %d.\n", yylineno);
     return 1;
     }
