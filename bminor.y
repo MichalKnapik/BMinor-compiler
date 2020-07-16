@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "decl.h"
-  
+#include "param_list.h"
+
 extern int yylineno;
 extern char *yytext;
 extern int yylex();
@@ -18,6 +19,8 @@ extern int yyerror(char *str);
 
   /* parser (non)terminal types */
   decl* decl_t;
+  expr* expr_t;
+  param_list* param_l_t;
 }
 
 %token BAD_T
@@ -76,6 +79,7 @@ extern int yyerror(char *str);
 %type <intval> INTEGER_T
 %type <stringval> STRING_T IDENTIFIER_T
 %type <decl_t> declaration declarations
+%type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n
 
 %left INC_T DEC_T
 %right UNARYOP
@@ -116,13 +120,13 @@ declarations: declaration declarations
 
 declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RPAREN_T optfbody 
 {
-  //todonow
+  //todonow 2
   decl* dc = decl_create($1, NULL, NULL, NULL, NULL);
   $$ = dc;
 }
 | IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
-  //todonow
+  //todonow 1
   decl* dc = decl_create(strdup($1), NULL, NULL, NULL, NULL);
   $$ = dc;  
 };
@@ -213,16 +217,16 @@ paramlist:
 {
   //todo*
 }
-| noneptyparamlist
+| nonemptyparamlist
 {
   //todo*  
 }; 
 
-noneptyparamlist: param 
+nonemptyparamlist: param 
 {
   //todo*
 }
-| param COMMA_T noneptyparamlist
+| param COMMA_T nonemptyparamlist
 {
   //todo*
 };
@@ -234,147 +238,166 @@ param: IDENTIFIER_T COLON_T type
 
 expression: LPAREN_T expression RPAREN_T
 {
-  //todo*
+  $$ = $2;
 }
 | TRUE_KW_T
+{
+  $$ = expr_create_boolean_literal(1);
+}
 | FALSE_KW_T
+{
+  $$ = expr_create_boolean_literal(0);
+}
 | CHAR_T
+{
+  $$ = expr_create_char_literal($1);
+}
 | INTEGER_T
+{
+  $$ = expr_create_integer_literal($1);
+}
 | IDENTIFIER_T
+{
+  $$ = expr_create_name($1);
+}
 | STRING_T
+{
+  $$ = expr_create_string_literal($1);
+}
 | LCURL_T arrayelementlist RCURL_T 
 {
-  //todo*
+  $$ = $2;
 }  
 | IDENTIFIER_T arrindexselect
 {
-  //todo*
+  $$ = expr_create(EXPR_ARR_SUBS,
+		   expr_create_name($1),
+		   $2);
 }
 | IDENTIFIER_T LPAREN_T exprlist RPAREN_T
 {
-  //todo*
+  $$ = expr_create(EXPR_FUN_CALL,
+		   expr_create_name($1),
+		   $3);
 }
 | IDENTIFIER_T INC_T
 {
-  //todo*
+  $$ = expr_create(EXPR_INC, expr_create_name($1), NULL);
 }
 | IDENTIFIER_T DEC_T
 {
-  //todo*
+  $$ = expr_create(EXPR_DEC, expr_create_name($1), NULL);
 }
 | MINUS_T expression %prec UNARYOP
 {
-  //todo*
+  $$ = expr_create(EXPR_UN_MIN, $2, NULL);
 }
 | NEG_T expression %prec UNARYOP
 {
-  //todo*
+  $$ = expr_create(EXPR_NEG, $2, NULL);
 }
 | expression EXP_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_EXP, $1, $3);
 }
 | expression TIMES_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_MUL, $1, $3);
 }
 | expression DIV_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_DIV, $1, $3);
 }
 | expression MOD_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_MOD, $1, $3);
 }
 | expression PLUS_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_ADD, $1, $3);
 }
 | expression MINUS_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_SUB, $1, $3);
 }
 | expression LT_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_LT, $1, $3);
 }
 | expression LE_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_LE, $1, $3);
 }
 | expression GT_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_GT, $1, $3);
 }
 | expression GE_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_GE, $1, $3);
 }
 | expression EQ_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_EQ, $1, $3);
 }
 | expression NEQ_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_NEQ, $1, $3);
 }
 | expression AND_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_AND, $1, $3);
 }
 | expression OR_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_OR, $1, $3);
 }
 | expression ASSG_T expression
 {
-  //todo*
+  $$ = expr_create(EXPR_ASSGN, $1, $3);  
 };
 
 arrindexselect: LBRACKET_T expression RBRACKET_T
 {
-  //todo*
+  $$ = expr_create(EXPR_ARG, $2, NULL);
 }
 | LBRACKET_T expression RBRACKET_T arrindexselect
 {
-  //todo*
+  $$ = expr_create(EXPR_ARG, $2, $4);
 };
 
 optexpression:
 {
-  //todo*
+  $$ = NULL;
 }
-| expression
-{
-  //todo*
-};
+| expression;
 
 arrayelementlist: expression
 {
-  //todo*
+  $$ = expr_create(EXPR_ARG, $1, NULL);
 }
 | expression COMMA_T arrayelementlist
 {
-  //todo*
+  $$ = expr_create(EXPR_ARG, $1, $3);
 }
 
 exprlist: 
 {
-  //todo*
+  $$ = NULL;
 }
 | exprlist_n
 {
-  //todo*
+  $$ = $1;
 };
 
 exprlist_n:
 expression
 {
-  //todo*
+  $$ = expr_create(EXPR_ARG, $1, NULL);
 }
 | expression COMMA_T exprlist_n
 {
-  //todo*
+  $$ = expr_create(EXPR_ARG, $1, $3);
 }
 
 %%

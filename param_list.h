@@ -1,20 +1,16 @@
-
 #ifndef PARAM_LIST_H
 #define PARAM_LIST_H
 
-#include "type.h"
-#include <stdio.h>
+typedef struct type type;
 
-struct expr;
-
-struct param_list {
+typedef struct param_list {
 	char *name;
 	struct type *type;
 	struct symbol *symbol;
 	struct param_list *next;
-};
+} param_list;
 
-struct param_list * param_list_create( char *name, struct type *type, struct param_list *next );
-void param_list_print( struct param_list *a );
+param_list* param_list_create(char *name, type *type, param_list *next);
+void param_list_print(param_list *a); //TODO
 
 #endif

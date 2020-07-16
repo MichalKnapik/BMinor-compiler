@@ -14,9 +14,9 @@ typedef struct decl {
 	struct decl *next;
 } decl;
 
-decl* decl_create(char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next);
+decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next);
 
-void decl_print(struct decl *d, int indent); //TODO
+void decl_print(decl *d, int indent); //TODO
 
 #endif
 
