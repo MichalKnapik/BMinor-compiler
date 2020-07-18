@@ -105,7 +105,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "bminor.y"
+#line 15 "bminor.y"
 
   /* lexer token types */
   char* stringval;
@@ -116,8 +116,9 @@ union YYSTYPE
   decl* decl_t;
   expr* expr_t;
   param_list* param_l_t;
+  stmt* stmt_t;
 
-#line 121 "parser.h"
+#line 122 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

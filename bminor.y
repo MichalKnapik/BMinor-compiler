@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "decl.h"
+#include "stmt.h"
 #include "param_list.h"
 
 extern int yylineno;
@@ -21,6 +22,7 @@ extern int yyerror(char *str);
   decl* decl_t;
   expr* expr_t;
   param_list* param_l_t;
+  stmt* stmt_t;
 }
 
 %token BAD_T
@@ -79,7 +81,8 @@ extern int yyerror(char *str);
 %type <intval> INTEGER_T
 %type <stringval> STRING_T IDENTIFIER_T
 %type <decl_t> declaration declarations
-%type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n
+%type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n optinit
+%type <stmt_t> statement statements
 
 %left INC_T DEC_T
 %right UNARYOP
@@ -150,13 +153,11 @@ arrsize:
 
 optinit:
 {
-  //standard init val?
-  //or nothing?
-  //todo*
+  $$ = NULL;
 }
 | ASSG_T expression
 {
-  //todo*
+  $$ = $2;
 };
 
 optfbody: SEMICOLON_T
@@ -172,45 +173,48 @@ optfbody: SEMICOLON_T
 
 statements: statement statements
 {
-  //todo*
+  $1->next = $2;
 }
-| statement
-{
-  //todo*
-};
+| statement;
 
 statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
-  //declaration
-  //todo* 
+  //todo - add type of declared symbol in decl_create
+  $$ = stmt_create(STMT_DECL,
+		   decl_create($1, NULL, $4, NULL, NULL),
+		   NULL, NULL, NULL, NULL, NULL, NULL);
 }
 | expression SEMICOLON_T
 {
-  //todo*
+  $$ = stmt_create(STMT_EXPR, NULL, NULL, $1, NULL, NULL, NULL, NULL);
 }
 | IF_KW_T LPAREN_T expression RPAREN_T statement %prec LOWER_THAN_ELSE
 {
-  //todo*  
+  $$ = stmt_create(STMT_IF_ELSE, NULL, NULL, $3, NULL, $5, NULL, NULL);
 }
 | IF_KW_T LPAREN_T expression RPAREN_T statement ELSE_KW_T statement
 {
-  //todo*  
+  $$ = stmt_create(STMT_IF_ELSE, NULL, NULL, $3, NULL, $5, $7, NULL);
 }
 | FOR_KW_T LPAREN_T optexpression SEMICOLON_T optexpression SEMICOLON_T optexpression RPAREN_T statement
 {
-  //todo*  
+  $$ = stmt_create(STMT_FOR, NULL,
+		   $3,
+		   $5,
+		   $7,
+		   $9, NULL, NULL);
 }
 | PRINT_KW_T exprlist SEMICOLON_T
 {
-  //todo*
+  $$ = stmt_create(STMT_PRINT, NULL, NULL, $2, NULL, NULL, NULL, NULL);
 }
 | RETURN_KW_T expression SEMICOLON_T
 {
-  //todo*
+  $$ = stmt_create(STMT_RETURN, NULL, NULL, $2, NULL, NULL, NULL, NULL);
 }
 | LCURL_T statements RCURL_T
 {
-  //todo*  
+  $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $2, NULL, NULL);
 };
 
 paramlist:

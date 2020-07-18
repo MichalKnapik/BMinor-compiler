@@ -72,6 +72,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "decl.h"
+#include "stmt.h"
 #include "param_list.h"
 
 extern int yylineno;
@@ -79,7 +80,7 @@ extern char *yytext;
 extern int yylex();
 extern int yyerror(char *str);
 
-#line 83 "parser.c"
+#line 84 "parser.c"
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus
@@ -174,7 +175,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "bminor.y"
+#line 15 "bminor.y"
 
   /* lexer token types */
   char* stringval;
@@ -185,8 +186,9 @@ union YYSTYPE
   decl* decl_t;
   expr* expr_t;
   param_list* param_l_t;
+  stmt* stmt_t;
 
-#line 190 "parser.c"
+#line 192 "parser.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -496,14 +498,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   100,   100,   103,   113,   118,   121,   127,   134,   134,
-     134,   134,   134,   139,   139,   139,   139,   139,   145,   148,
-     152,   157,   162,   168,   173,   177,   182,   187,   191,   195,
-     199,   203,   207,   211,   217,   220,   225,   229,   234,   239,
-     243,   247,   251,   255,   259,   263,   267,   271,   277,   283,
-     287,   291,   295,   299,   303,   307,   311,   315,   319,   323,
-     327,   331,   335,   339,   343,   347,   351,   355,   360,   364,
-     370,   373,   375,   379,   385,   388,   394,   398
+       0,   103,   103,   106,   116,   121,   124,   130,   137,   137,
+     137,   137,   137,   142,   142,   142,   142,   142,   148,   151,
+     155,   158,   163,   169,   174,   178,   180,   187,   191,   195,
+     199,   207,   211,   215,   221,   224,   229,   233,   238,   243,
+     247,   251,   255,   259,   263,   267,   271,   275,   281,   287,
+     291,   295,   299,   303,   307,   311,   315,   319,   323,   327,
+     331,   335,   339,   343,   347,   351,   355,   359,   364,   368,
+     374,   377,   379,   383,   389,   392,   398,   402
 };
 #endif
 
@@ -1417,15 +1419,15 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 100 "bminor.y"
+#line 103 "bminor.y"
     {
   //todo*  
 }
-#line 1425 "parser.c"
+#line 1427 "parser.c"
     break;
 
   case 3:
-#line 104 "bminor.y"
+#line 107 "bminor.y"
     {
   //todo*
   decl* d = (yyvsp[0].decl_t);
@@ -1434,82 +1436,80 @@ yyreduce:
     d = d->next;
   }
 }
-#line 1438 "parser.c"
+#line 1440 "parser.c"
     break;
 
   case 4:
-#line 114 "bminor.y"
+#line 117 "bminor.y"
     {
   (yyvsp[-1].decl_t)->next = (yyvsp[0].decl_t);
   (yyval.decl_t) = (yyvsp[-1].decl_t);
 }
-#line 1447 "parser.c"
+#line 1449 "parser.c"
     break;
 
   case 6:
-#line 122 "bminor.y"
+#line 125 "bminor.y"
     {
   //todonow 2
   decl* dc = decl_create((yyvsp[-7].stringval), NULL, NULL, NULL, NULL);
   (yyval.decl_t) = dc;
 }
-#line 1457 "parser.c"
+#line 1459 "parser.c"
     break;
 
   case 7:
-#line 128 "bminor.y"
+#line 131 "bminor.y"
     {
   //todonow 1
   decl* dc = decl_create(strdup((yyvsp[-4].stringval)), NULL, NULL, NULL, NULL);
   (yyval.decl_t) = dc;  
 }
-#line 1467 "parser.c"
+#line 1469 "parser.c"
     break;
 
   case 12:
-#line 135 "bminor.y"
+#line 138 "bminor.y"
     { 
  //todo*
 }
-#line 1475 "parser.c"
+#line 1477 "parser.c"
     break;
 
   case 17:
-#line 140 "bminor.y"
+#line 143 "bminor.y"
     {
   //todo*
 }
-#line 1483 "parser.c"
+#line 1485 "parser.c"
     break;
 
   case 18:
-#line 145 "bminor.y"
+#line 148 "bminor.y"
     {
   //todo*  
 }
-#line 1491 "parser.c"
+#line 1493 "parser.c"
     break;
 
   case 20:
-#line 152 "bminor.y"
+#line 155 "bminor.y"
     {
-  //standard init val?
-  //or nothing?
-  //todo*
+  (yyval.expr_t) = NULL;
 }
 #line 1501 "parser.c"
     break;
 
   case 21:
-#line 158 "bminor.y"
+#line 159 "bminor.y"
     {
-  //todo*
+  (yyval.expr_t) = (yyvsp[0].expr_t);
 }
 #line 1509 "parser.c"
     break;
 
   case 22:
-#line 163 "bminor.y"
+#line 164 "bminor.y"
     {
   //standard init val?
   //or nothing?
@@ -1519,7 +1519,7 @@ yyreduce:
     break;
 
   case 23:
-#line 169 "bminor.y"
+#line 170 "bminor.y"
     {
   //todo*
 }
@@ -1527,436 +1527,434 @@ yyreduce:
     break;
 
   case 24:
-#line 174 "bminor.y"
+#line 175 "bminor.y"
     {
-  //todo*
+  (yyvsp[-1].stmt_t)->next = (yyvsp[0].stmt_t);
 }
 #line 1535 "parser.c"
     break;
 
-  case 25:
-#line 178 "bminor.y"
-    {
-  //todo*
-}
-#line 1543 "parser.c"
-    break;
-
   case 26:
-#line 183 "bminor.y"
+#line 181 "bminor.y"
     {
-  //declaration
-  //todo* 
+  //todo - add type of declared symbol in decl_create
+  (yyval.stmt_t) = stmt_create(STMT_DECL,
+		   decl_create((yyvsp[-4].stringval), NULL, (yyvsp[-1].expr_t), NULL, NULL),
+		   NULL, NULL, NULL, NULL, NULL, NULL);
 }
-#line 1552 "parser.c"
+#line 1546 "parser.c"
     break;
 
   case 27:
 #line 188 "bminor.y"
     {
-  //todo*
+  (yyval.stmt_t) = stmt_create(STMT_EXPR, NULL, NULL, (yyvsp[-1].expr_t), NULL, NULL, NULL, NULL);
 }
-#line 1560 "parser.c"
+#line 1554 "parser.c"
     break;
 
   case 28:
 #line 192 "bminor.y"
     {
-  //todo*  
+  (yyval.stmt_t) = stmt_create(STMT_IF_ELSE, NULL, NULL, (yyvsp[-2].expr_t), NULL, (yyvsp[0].stmt_t), NULL, NULL);
 }
-#line 1568 "parser.c"
+#line 1562 "parser.c"
     break;
 
   case 29:
 #line 196 "bminor.y"
     {
-  //todo*  
+  (yyval.stmt_t) = stmt_create(STMT_IF_ELSE, NULL, NULL, (yyvsp[-4].expr_t), NULL, (yyvsp[-2].stmt_t), (yyvsp[0].stmt_t), NULL);
 }
-#line 1576 "parser.c"
+#line 1570 "parser.c"
     break;
 
   case 30:
 #line 200 "bminor.y"
     {
-  //todo*  
+  (yyval.stmt_t) = stmt_create(STMT_FOR, NULL,
+		   (yyvsp[-6].expr_t),
+		   (yyvsp[-4].expr_t),
+		   (yyvsp[-2].expr_t),
+		   (yyvsp[0].stmt_t), NULL, NULL);
 }
-#line 1584 "parser.c"
+#line 1582 "parser.c"
     break;
 
   case 31:
-#line 204 "bminor.y"
+#line 208 "bminor.y"
     {
-  //todo*
+  (yyval.stmt_t) = stmt_create(STMT_PRINT, NULL, NULL, (yyvsp[-1].expr_t), NULL, NULL, NULL, NULL);
 }
-#line 1592 "parser.c"
+#line 1590 "parser.c"
     break;
 
   case 32:
-#line 208 "bminor.y"
+#line 212 "bminor.y"
     {
-  //todo*
+  (yyval.stmt_t) = stmt_create(STMT_RETURN, NULL, NULL, (yyvsp[-1].expr_t), NULL, NULL, NULL, NULL);
 }
-#line 1600 "parser.c"
+#line 1598 "parser.c"
     break;
 
   case 33:
-#line 212 "bminor.y"
+#line 216 "bminor.y"
     {
-  //todo*  
+  (yyval.stmt_t) = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, (yyvsp[-1].stmt_t), NULL, NULL);
 }
-#line 1608 "parser.c"
+#line 1606 "parser.c"
     break;
 
   case 34:
-#line 217 "bminor.y"
+#line 221 "bminor.y"
     {
   //todo*
 }
-#line 1616 "parser.c"
+#line 1614 "parser.c"
     break;
 
   case 35:
-#line 221 "bminor.y"
+#line 225 "bminor.y"
     {
   //todo*  
 }
-#line 1624 "parser.c"
+#line 1622 "parser.c"
     break;
 
   case 36:
-#line 226 "bminor.y"
-    {
-  //todo*
-}
-#line 1632 "parser.c"
-    break;
-
-  case 37:
 #line 230 "bminor.y"
     {
   //todo*
 }
-#line 1640 "parser.c"
+#line 1630 "parser.c"
     break;
 
-  case 38:
-#line 235 "bminor.y"
+  case 37:
+#line 234 "bminor.y"
     {
   //todo*
 }
-#line 1648 "parser.c"
+#line 1638 "parser.c"
+    break;
+
+  case 38:
+#line 239 "bminor.y"
+    {
+  //todo*
+}
+#line 1646 "parser.c"
     break;
 
   case 39:
-#line 240 "bminor.y"
+#line 244 "bminor.y"
     {
   (yyval.expr_t) = (yyvsp[-1].expr_t);
 }
-#line 1656 "parser.c"
+#line 1654 "parser.c"
     break;
 
   case 40:
-#line 244 "bminor.y"
+#line 248 "bminor.y"
     {
   (yyval.expr_t) = expr_create_boolean_literal(1);
 }
-#line 1664 "parser.c"
+#line 1662 "parser.c"
     break;
 
   case 41:
-#line 248 "bminor.y"
+#line 252 "bminor.y"
     {
   (yyval.expr_t) = expr_create_boolean_literal(0);
 }
-#line 1672 "parser.c"
+#line 1670 "parser.c"
     break;
 
   case 42:
-#line 252 "bminor.y"
+#line 256 "bminor.y"
     {
   (yyval.expr_t) = expr_create_char_literal((yyvsp[0].charval));
 }
-#line 1680 "parser.c"
+#line 1678 "parser.c"
     break;
 
   case 43:
-#line 256 "bminor.y"
+#line 260 "bminor.y"
     {
   (yyval.expr_t) = expr_create_integer_literal((yyvsp[0].intval));
 }
-#line 1688 "parser.c"
+#line 1686 "parser.c"
     break;
 
   case 44:
-#line 260 "bminor.y"
+#line 264 "bminor.y"
     {
   (yyval.expr_t) = expr_create_name((yyvsp[0].stringval));
 }
-#line 1696 "parser.c"
+#line 1694 "parser.c"
     break;
 
   case 45:
-#line 264 "bminor.y"
+#line 268 "bminor.y"
     {
   (yyval.expr_t) = expr_create_string_literal((yyvsp[0].stringval));
 }
-#line 1704 "parser.c"
+#line 1702 "parser.c"
     break;
 
   case 46:
-#line 268 "bminor.y"
+#line 272 "bminor.y"
     {
   (yyval.expr_t) = (yyvsp[-1].expr_t);
 }
-#line 1712 "parser.c"
+#line 1710 "parser.c"
     break;
 
   case 47:
-#line 272 "bminor.y"
+#line 276 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARR_SUBS,
 		   expr_create_name((yyvsp[-1].stringval)),
 		   (yyvsp[0].expr_t));
 }
-#line 1722 "parser.c"
+#line 1720 "parser.c"
     break;
 
   case 48:
-#line 278 "bminor.y"
+#line 282 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_FUN_CALL,
 		   expr_create_name((yyvsp[-3].stringval)),
 		   (yyvsp[-1].expr_t));
 }
-#line 1732 "parser.c"
+#line 1730 "parser.c"
     break;
 
   case 49:
-#line 284 "bminor.y"
+#line 288 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_INC, expr_create_name((yyvsp[-1].stringval)), NULL);
 }
-#line 1740 "parser.c"
+#line 1738 "parser.c"
     break;
 
   case 50:
-#line 288 "bminor.y"
+#line 292 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_DEC, expr_create_name((yyvsp[-1].stringval)), NULL);
 }
-#line 1748 "parser.c"
+#line 1746 "parser.c"
     break;
 
   case 51:
-#line 292 "bminor.y"
+#line 296 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_UN_MIN, (yyvsp[0].expr_t), NULL);
 }
-#line 1756 "parser.c"
+#line 1754 "parser.c"
     break;
 
   case 52:
-#line 296 "bminor.y"
+#line 300 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_NEG, (yyvsp[0].expr_t), NULL);
 }
-#line 1764 "parser.c"
+#line 1762 "parser.c"
     break;
 
   case 53:
-#line 300 "bminor.y"
+#line 304 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_EXP, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1772 "parser.c"
+#line 1770 "parser.c"
     break;
 
   case 54:
-#line 304 "bminor.y"
+#line 308 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_MUL, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1780 "parser.c"
+#line 1778 "parser.c"
     break;
 
   case 55:
-#line 308 "bminor.y"
+#line 312 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_DIV, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1788 "parser.c"
+#line 1786 "parser.c"
     break;
 
   case 56:
-#line 312 "bminor.y"
+#line 316 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_MOD, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1796 "parser.c"
+#line 1794 "parser.c"
     break;
 
   case 57:
-#line 316 "bminor.y"
+#line 320 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ADD, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1804 "parser.c"
+#line 1802 "parser.c"
     break;
 
   case 58:
-#line 320 "bminor.y"
+#line 324 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_SUB, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1812 "parser.c"
+#line 1810 "parser.c"
     break;
 
   case 59:
-#line 324 "bminor.y"
+#line 328 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_LT, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1820 "parser.c"
+#line 1818 "parser.c"
     break;
 
   case 60:
-#line 328 "bminor.y"
+#line 332 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_LE, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1828 "parser.c"
+#line 1826 "parser.c"
     break;
 
   case 61:
-#line 332 "bminor.y"
+#line 336 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_GT, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1836 "parser.c"
+#line 1834 "parser.c"
     break;
 
   case 62:
-#line 336 "bminor.y"
+#line 340 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_GE, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1844 "parser.c"
+#line 1842 "parser.c"
     break;
 
   case 63:
-#line 340 "bminor.y"
+#line 344 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_EQ, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1852 "parser.c"
+#line 1850 "parser.c"
     break;
 
   case 64:
-#line 344 "bminor.y"
+#line 348 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_NEQ, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1860 "parser.c"
+#line 1858 "parser.c"
     break;
 
   case 65:
-#line 348 "bminor.y"
+#line 352 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_AND, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1868 "parser.c"
+#line 1866 "parser.c"
     break;
 
   case 66:
-#line 352 "bminor.y"
+#line 356 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_OR, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1876 "parser.c"
+#line 1874 "parser.c"
     break;
 
   case 67:
-#line 356 "bminor.y"
+#line 360 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ASSGN, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));  
 }
-#line 1884 "parser.c"
+#line 1882 "parser.c"
     break;
 
   case 68:
-#line 361 "bminor.y"
+#line 365 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARG, (yyvsp[-1].expr_t), NULL);
 }
-#line 1892 "parser.c"
+#line 1890 "parser.c"
     break;
 
   case 69:
-#line 365 "bminor.y"
+#line 369 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARG, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1900 "parser.c"
+#line 1898 "parser.c"
     break;
 
   case 70:
-#line 370 "bminor.y"
+#line 374 "bminor.y"
     {
   (yyval.expr_t) = NULL;
 }
-#line 1908 "parser.c"
+#line 1906 "parser.c"
     break;
 
   case 72:
-#line 376 "bminor.y"
+#line 380 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARG, (yyvsp[0].expr_t), NULL);
 }
-#line 1916 "parser.c"
+#line 1914 "parser.c"
     break;
 
   case 73:
-#line 380 "bminor.y"
+#line 384 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARG, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1924 "parser.c"
+#line 1922 "parser.c"
     break;
 
   case 74:
-#line 385 "bminor.y"
+#line 389 "bminor.y"
     {
   (yyval.expr_t) = NULL;
 }
-#line 1932 "parser.c"
+#line 1930 "parser.c"
     break;
 
   case 75:
-#line 389 "bminor.y"
+#line 393 "bminor.y"
     {
   (yyval.expr_t) = (yyvsp[0].expr_t);
 }
-#line 1940 "parser.c"
+#line 1938 "parser.c"
     break;
 
   case 76:
-#line 395 "bminor.y"
+#line 399 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARG, (yyvsp[0].expr_t), NULL);
 }
-#line 1948 "parser.c"
+#line 1946 "parser.c"
     break;
 
   case 77:
-#line 399 "bminor.y"
+#line 403 "bminor.y"
     {
   (yyval.expr_t) = expr_create(EXPR_ARG, (yyvsp[-2].expr_t), (yyvsp[0].expr_t));
 }
-#line 1956 "parser.c"
+#line 1954 "parser.c"
     break;
 
 
-#line 1960 "parser.c"
+#line 1958 "parser.c"
 
       default: break;
     }
@@ -2188,7 +2186,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 403 "bminor.y"
+#line 407 "bminor.y"
 
 
 int yyerror(char* s) {
