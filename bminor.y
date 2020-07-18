@@ -23,6 +23,7 @@ extern int yyerror(char *str);
   expr* expr_t;
   param_list* param_l_t;
   stmt* stmt_t;
+  type* type_t;
 }
 
 %token BAD_T
@@ -83,6 +84,8 @@ extern int yyerror(char *str);
 %type <decl_t> declaration declarations
 %type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n optinit
 %type <stmt_t> statement statements
+%type <type_t> type returntype
+%type <param_l_t> paramlist nonemptyparamlist param
 
 %left INC_T DEC_T
 %right UNARYOP
@@ -123,31 +126,47 @@ declarations: declaration declarations
 
 declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RPAREN_T optfbody 
 {
-  //todonow 2
-  decl* dc = decl_create($1, NULL, NULL, NULL, NULL);
+  //todo now - add optfbody (decl_create($1, ftype, NULL, $8, NULL);)
+  type* ftype = type_create(TYPE_FUNCTION, $4, $6);
+  decl* dc = decl_create($1, ftype, NULL, NULL /*optfbody*/, NULL);
   $$ = dc;
 }
 | IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
-  //todonow 1
-  decl* dc = decl_create(strdup($1), NULL, NULL, NULL, NULL);
+  decl* dc = decl_create($1, $3, $4, NULL, NULL);
   $$ = dc;  
 };
 
-returntype: CHAR_KW_T | BOOLEAN_KW_T | INTEGER_KW_T | STRING_KW_T | VOID_KW_T
-{ 
- //todo*
+type: returntype
+| ARRAY_KW_T LBRACKET_T arrsize RBRACKET_T type
+{
+  type* artype = type_create(TYPE_ARRAY, $5, NULL);
+  $$ = artype;
 };
 
-type: INTEGER_KW_T | BOOLEAN_KW_T | STRING_KW_T | CHAR_KW_T | ARRAY_KW_T LBRACKET_T arrsize RBRACKET_T type
+returntype: CHAR_KW_T
 {
-  //todo*
+  $$ = type_create(TYPE_CHARACTER, NULL, NULL);
+}
+| BOOLEAN_KW_T
+{
+  $$ = type_create(TYPE_BOOLEAN, NULL, NULL);
+}
+| INTEGER_KW_T
+{
+  $$ = type_create(TYPE_INTEGER, NULL, NULL);
+}
+| STRING_KW_T
+{
+  $$ = type_create(TYPE_STRING, NULL, NULL);
+}
+| VOID_KW_T
+{
+  $$ = type_create(TYPE_VOID, NULL, NULL);
 };
 
 arrsize:
-{
-  //todo*  
-}
+{ /* Not used, can be extended to handle range-aware arrays. */ }
 | INTEGER_T
 ;
 
@@ -179,9 +198,8 @@ statements: statement statements
 
 statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
-  //todo - add type of declared symbol in decl_create
   $$ = stmt_create(STMT_DECL,
-		   decl_create($1, NULL, $4, NULL, NULL),
+		   decl_create($1, $3, $4, NULL, NULL),
 		   NULL, NULL, NULL, NULL, NULL, NULL);
 }
 | expression SEMICOLON_T
@@ -219,25 +237,20 @@ statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 
 paramlist:
 {
-  //todo*
+  $$ = NULL;
 }
-| nonemptyparamlist
-{
-  //todo*  
-}; 
+| nonemptyparamlist; 
 
 nonemptyparamlist: param 
-{
-  //todo*
-}
 | param COMMA_T nonemptyparamlist
 {
-  //todo*
+  $1->next = $3;
+  $$ = $1;
 };
 
 param: IDENTIFIER_T COLON_T type 
 {
-  //todo*
+  $$ = param_list_create($1, $3, NULL);
 };
 
 expression: LPAREN_T expression RPAREN_T

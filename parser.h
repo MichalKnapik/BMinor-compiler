@@ -117,8 +117,9 @@ union YYSTYPE
   expr* expr_t;
   param_list* param_l_t;
   stmt* stmt_t;
+  type* type_t;
 
-#line 122 "parser.h"
+#line 123 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
