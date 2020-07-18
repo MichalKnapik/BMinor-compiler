@@ -127,21 +127,18 @@ declarations: declaration declarations
 declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RPAREN_T optfbody 
 {
   //todo now - add optfbody (decl_create($1, ftype, NULL, $8, NULL);)
-  type* ftype = type_create(TYPE_FUNCTION, $4, $6);
-  decl* dc = decl_create($1, ftype, NULL, NULL /*optfbody*/, NULL);
-  $$ = dc;
+  $$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6),
+		   NULL, NULL /*optfbody*/, NULL);
 }
 | IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
-  decl* dc = decl_create($1, $3, $4, NULL, NULL);
-  $$ = dc;  
+  $$ = decl_create($1, $3, $4, NULL, NULL);
 };
 
 type: returntype
 | ARRAY_KW_T LBRACKET_T arrsize RBRACKET_T type
 {
-  type* artype = type_create(TYPE_ARRAY, $5, NULL);
-  $$ = artype;
+  $$ = type_create(TYPE_ARRAY, $5, NULL);
 };
 
 returntype: CHAR_KW_T
@@ -216,11 +213,7 @@ statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 }
 | FOR_KW_T LPAREN_T optexpression SEMICOLON_T optexpression SEMICOLON_T optexpression RPAREN_T statement
 {
-  $$ = stmt_create(STMT_FOR, NULL,
-		   $3,
-		   $5,
-		   $7,
-		   $9, NULL, NULL);
+  $$ = stmt_create(STMT_FOR, NULL, $3, $5, $7, $9, NULL, NULL);
 }
 | PRINT_KW_T exprlist SEMICOLON_T
 {
