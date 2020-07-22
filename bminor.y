@@ -10,6 +10,8 @@ extern int yylineno;
 extern char *yytext;
 extern int yylex();
 extern int yyerror(char *str);
+
+decl* program_root;
 %}
 
 %union {
@@ -81,9 +83,9 @@ extern int yyerror(char *str);
 %type <charval> CHAR_T
 %type <intval> INTEGER_T
 %type <stringval> STRING_T IDENTIFIER_T
-%type <decl_t> declaration declarations
-%type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n optinit
-%type <stmt_t> statement statements
+%type <decl_t> declaration declarations program 
+%type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n optinit 
+%type <stmt_t> statement statements optfbody
 %type <type_t> type returntype
 %type <param_l_t> paramlist nonemptyparamlist param
 
@@ -104,16 +106,12 @@ extern int yyerror(char *str);
 
 program:
 {
-  //todo*  
+  $$ = NULL;
+  program_root = $$;
 }
 | declarations
 {
-  //todo*
-  decl* d = $1;
-  while (d != NULL) {
-    printf("(%s)\n", d->name);
-    d = d->next;
-  }
+  program_root = $$;
 };
 
 declarations: declaration declarations
@@ -126,9 +124,8 @@ declarations: declaration declarations
 
 declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RPAREN_T optfbody 
 {
-  //todo now - add optfbody (decl_create($1, ftype, NULL, $8, NULL);)
   $$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6),
-		   NULL, NULL /*optfbody*/, NULL);
+		   NULL, $8, NULL);
 }
 | IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
@@ -178,13 +175,11 @@ optinit:
 
 optfbody: SEMICOLON_T
 {
-  //standard init val?
-  //or nothing?
-  //todo*
+  $$ = NULL;
 }
 | ASSG_T LCURL_T statements RCURL_T
 {
-  //todo*
+  $$ = $3;
 };
 
 statements: statement statements

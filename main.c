@@ -6,6 +6,7 @@
 
 extern int yyparse();
 extern int yylex();
+extern decl* program_root;
 
 int main(int argc, char** argv) {
 
@@ -40,6 +41,11 @@ int main(int argc, char** argv) {
 
     if(!yyparse()) {
       printf("parse successful\n");
+      
+      //TODO - display program
+      int global_counter = 0;
+      decl_print_dot(program_root, &global_counter);
+      //-------
       return 0;
     } else {
       printf("parse failed!\n");

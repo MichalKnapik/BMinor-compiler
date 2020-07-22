@@ -15,8 +15,7 @@ typedef struct decl {
 } decl;
 
 decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next);
-
-void decl_print(decl *d, int indent); //TODO
+int decl_print_dot(decl *d, int* global_counter);
 
 #endif
 

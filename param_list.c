@@ -13,3 +13,29 @@ param_list* param_list_create(char *name, type *type, param_list *next) {
 
   return rval;
 }
+
+int param_print_dot(param_list* l, int* global_counter) {
+  
+  int local_counter = (*global_counter)++;  
+  int typer = -1;
+  int nextr = -1;
+
+  printf("struct%d [", local_counter);
+  if (l->name != NULL) {
+    printf("label=\"{TYPE|{ nme = %s", l->name);
+  }
+  if (l->type != NULL) {
+    typer = type_print_dot(l->type, global_counter);
+    printf("|<f0> next");    
+  }
+  if (l->next != NULL) {
+    nextr = param_print_dot(l->next, global_counter);
+    printf("|<f1> next");    
+  }
+
+  printf("\"}}];");
+
+  //todo - print transitions
+
+  return local_counter;
+}

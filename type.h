@@ -20,6 +20,6 @@ typedef struct type {
 } type;
 
 type* type_create(type_t kind, type *subtype, param_list *params);
-void type_print(struct type *t);//TODO
+int type_print_dot(type *d, int* global_counter);
 
 #endif

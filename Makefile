@@ -1,6 +1,6 @@
 CC		= gcc
 CCOPTS  	= -g -Wall 
-BISOPTS	        = --report=all --graph 
+BISOPTS	        = --report=all
 
 all:	parser.c scanner.c 
 	$(CC) $(CCOPTS) parser.c scanner.c decl.c stmt.c expr.c type.c param_list.c main.c -o bminor

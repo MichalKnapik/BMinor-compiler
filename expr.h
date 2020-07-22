@@ -31,13 +31,12 @@ typedef enum {
 	EXPR_AND,
 	EXPR_OR,
 	EXPR_ASSGN	
-	/* many more kinds of exprs to add here */
 } expr_t;
 
 typedef struct expr {
 
 	/* used by all kinds of exprs */
-	expr_t kind;
+ 	expr_t kind;
 	struct expr *left;
 	struct expr *right;
 
@@ -55,7 +54,6 @@ expr* expr_create_integer_literal(int c);
 expr* expr_create_boolean_literal(int c);
 expr* expr_create_char_literal(char c);
 expr* expr_create_string_literal(const char *str);
-
-void expr_print(struct expr *e); //TODO
+int expr_print_dot(expr* s, int* global_counter);
 
 #endif

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "expr.h"
 
@@ -54,4 +55,41 @@ expr* expr_create_string_literal(const char *str) {
   rval->string_literal = str;
 
   return rval;
+}
+
+int expr_print_dot(expr* s, int* global_counter) {
+  
+  int local_counter = (*global_counter)++;
+  int leftr = -1;
+  int rightr = -1;
+
+  const char * exprnames[] = {"EXPR_NAME", "EXPR_STR", "EXPR_INT", "EXPR_CHAR", "EXPR_BOOL", "EXPR_ARG",
+			      "EXPR_ARR_SUBS", "EXPR_FUN_CALL", "EXPR_UN_MIN", "EXPR_NEG", "EXPR_EXP", "EXPR_MUL",
+			      "EXPR_DIV", "EXPR_MOD", "EXPR_ADD", "EXPR_SUB", "EXPR_INC", "EXPR_DEC", "EXPR_LE",
+			      "EXPR_LT", "EXPR_EQ", "EXPR_GT", "EXPR_GE", "EXPR_NEQ", "EXPR_AND", "EXPR_OR",
+			      "EXPR_ASSGN"};
+  const char* kindr = exprnames[s->kind - EXPR_NAME];
+
+  printf("struct%d [ label=\"", local_counter);
+  printf("{%s|{", kindr);
+
+  if (s->name != NULL) {
+    printf("| nme = %s ", s->name);
+  }
+  if (s->kind == EXPR_INT || s->kind == EXPR_CHAR || s->kind == EXPR_BOOL) {
+    printf("| lvl = %d ", s->literal_value);    
+  }
+  if (s->string_literal != NULL) {
+    printf("| str = %s ", s->string_literal);
+  }
+
+  if (s->left != NULL) {
+    leftr = expr_print_dot(s->left, global_counter);
+  }
+  if (s->left != NULL) {
+    rightr = expr_print_dot(s->right, global_counter);
+  }
+
+  //todo transitions
+  return local_counter;
 }
