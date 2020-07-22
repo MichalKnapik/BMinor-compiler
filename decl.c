@@ -23,27 +23,20 @@ int decl_print_dot(decl *d, int* global_counter) {
   int nextr = -1;
 
   printf("struct%d [", local_counter);
-  if (d->name != NULL) {
-    printf("label=\"{DECL|{<f0> name");
-  }
-  if (d->type != NULL) {
-    printf("|<f1> type");
-    typer = type_print_dot(d->type, global_counter);
-  }
-  if (d->value != NULL) {
-    printf("|<f2> value");
-    valuer = expr_print_dot(d->value, global_counter);
-  }
-  if (d->code != NULL) {
-    printf("|<f3> code");
-    coder = stmt_print_dot(d->code, global_counter);
-  }
-  if (d->next != NULL) {
-    nextr = decl_print_dot(d->next, global_counter);
-    printf("|<f4> next");    
-  }
 
-  printf("\"}}];");
+  if (d->name != NULL)  printf("label=\"{DECL|{<f0> name");
+  if (d->type != NULL) printf("|<f1> type");
+  if (d->value != NULL) printf("|<f2> value");
+  if (d->code != NULL) printf("|<f3> code");
+  if (d->next != NULL) printf("|<f4> next");    
+
+  printf("\"}}];\n");
+
+  //rec calls
+  if (d->type != NULL) typer = type_print_dot(d->type, global_counter);
+  if (d->value != NULL) valuer = expr_print_dot(d->value, global_counter);
+  if (d->code != NULL) coder = stmt_print_dot(d->code, global_counter);
+  if (d->next != NULL) nextr = decl_print_dot(d->next, global_counter);
 
   //todo - print transitions
 
