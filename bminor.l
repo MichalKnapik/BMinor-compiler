@@ -101,7 +101,7 @@ CHAR (\'([\x00-\x5B]|[\x5D-\x7F])\')|(\'\\[\x00-\x7F]\')
                           return INTEGER_T;
                          }
 {STRING}                 {
-                          yylval.stringval = strdup(yytext);
+                          yylval.stringval = strndup(yytext+1, strlen(yytext)-2);
                           return STRING_T;
                          }
 {CHAR}                   {

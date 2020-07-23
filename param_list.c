@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "param_list.h"
+#include "smalltools.h"
 #include "type.h"
 
 param_list* param_list_create(char *name, type *type, param_list *next) {
@@ -20,13 +21,16 @@ int param_print_dot(param_list* l, int* global_counter) {
   int typer = -1;
   int nextr = -1;
 
-  printf("struct%d [", local_counter);
+  printf("struct%d [label=\"{param_list|{ ", local_counter);
+  int first = 0;
+  if (l->name != NULL) {
+    printf("nme = %s", l->name);
+    first = 1;
+  }
+  if (l->type != NULL) print_with_bar_unless_first(&first, "<f0> type");
+  if (l->next != NULL) print_with_bar_unless_first(&first, "<f1> next");    
 
-  if (l->name != NULL) printf("label=\"{TYPE|{ nme = %s", l->name);
-  if (l->type != NULL) printf("|<f0> next");    
-  if (l->next != NULL) printf("|<f1> next");    
-
-  printf("\"}}];\n");
+  printf("}}\"];\n");
 
   //rec calls
   if (l->type != NULL) typer = type_print_dot(l->type, global_counter);

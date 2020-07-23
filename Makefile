@@ -3,7 +3,7 @@ CCOPTS  	= -g -Wall
 BISOPTS	        = --report=all
 
 all:	parser.c scanner.c 
-	$(CC) $(CCOPTS) parser.c scanner.c decl.c stmt.c expr.c type.c param_list.c main.c -o bminor
+	$(CC) $(CCOPTS) parser.c scanner.c decl.c stmt.c expr.c type.c param_list.c smalltools.c main.c -o bminor
 
 parser.c parser.h: bminor.y 
 	bison $(BISOPTS) --defines=parser.h --output=parser.c -v bminor.y

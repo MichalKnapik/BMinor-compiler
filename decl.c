@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "smalltools.h"
 #include "decl.h"
 
 decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next) {
@@ -22,15 +23,16 @@ int decl_print_dot(decl *d, int* global_counter) {
   int coder = -1;
   int nextr = -1;
 
-  printf("struct%d [", local_counter);
+  printf("struct%d [label=\"{DECL|{", local_counter);
 
-  if (d->name != NULL)  printf("label=\"{DECL|{<f0> name");
-  if (d->type != NULL) printf("|<f1> type");
-  if (d->value != NULL) printf("|<f2> value");
-  if (d->code != NULL) printf("|<f3> code");
-  if (d->next != NULL) printf("|<f4> next");    
+  int first = 0;
+  if (d->name != NULL) print_with_bar_unless_first(&first, "<f0> name");
+  if (d->type != NULL) print_with_bar_unless_first(&first, "<f1> type");
+  if (d->value != NULL) print_with_bar_unless_first(&first, "<f2> value");
+  if (d->code != NULL) print_with_bar_unless_first(&first, "<f3> code");
+  if (d->next != NULL) print_with_bar_unless_first(&first, "<f4> next");    
 
-  printf("\"}}];\n");
+  printf("}}\"];\n");
 
   //rec calls
   if (d->type != NULL) typer = type_print_dot(d->type, global_counter);

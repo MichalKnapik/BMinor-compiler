@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "smalltools.h"
 #include "expr.h"
 
 expr* expr_create(expr_t kind, struct expr *left, expr *right) {
@@ -71,16 +72,26 @@ int expr_print_dot(expr* s, int* global_counter) {
 
   const char* kindr = exprnames[s->kind - EXPR_NAME];
 
-  printf("struct%d [ label=\"", local_counter);
+  printf("struct%d [label=\"", local_counter);
   printf("{%s|{", kindr);
 
-  if (s->name != NULL) printf("| nme = %s ", s->name);
-  if (s->kind == EXPR_INT || s->kind == EXPR_CHAR || s->kind == EXPR_BOOL) printf("| lvl = %d ", s->literal_value);    
-  if (s->string_literal != NULL) printf("| str = %s ", s->string_literal);
-  if (s->left != NULL) printf("| <f0> left");
-  if (s->right != NULL) printf("| <f1> right");
+  int first = 0;
+  if (s->name != NULL) {
+    print_with_bar_unless_first(&first, "nme = ");
+    printf("%s", s->name);
+  }
+  if (s->kind == EXPR_INT || s->kind == EXPR_CHAR || s->kind == EXPR_BOOL) {
+    print_with_bar_unless_first(&first, "lvl = ");    
+    printf("%d", s->literal_value);
+  }
+  if (s->string_literal != NULL) {
+    print_with_bar_unless_first(&first, "str = ");        
+    printf("%s", s->string_literal);
+  }
+  if (s->left != NULL) print_with_bar_unless_first(&first, "<f0> left");
+  if (s->right != NULL) print_with_bar_unless_first(&first, "<f1> right");
 
-  printf("\"}}];\n");
+  printf("}}\"];\n");
 
   //rec calls
   if (s->left != NULL) leftr = expr_print_dot(s->left, global_counter);

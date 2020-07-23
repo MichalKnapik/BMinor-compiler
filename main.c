@@ -42,8 +42,8 @@ int main(int argc, char** argv) {
     if(!yyparse()) {
       printf("parse successful\n");
       
-      //TODO - display program
       int global_counter = 0;
+      if (program_root != NULL)
       decl_print_dot(program_root, &global_counter);
       //-------
       return 0;

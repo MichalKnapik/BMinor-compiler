@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "smalltools.h"
 #include "stmt.h"
 #include "decl.h"
 #include "expr.h"
 
-stmt* stmt_create(stmt_t kind, decl *decl, expr *init_expr, expr *exprf, expr *next_expr, stmt *body, stmt *else_body, stmt *next) {
+stmt* stmt_create(stmt_t kind, decl *decl, expr *init_expr, expr *exprf, expr *next_expr,
+		  stmt *body, stmt *else_body, stmt *next) {
 
   stmt* rval = malloc(sizeof(stmt));
   rval->kind = kind;
@@ -34,18 +36,19 @@ int stmt_print_dot(stmt* s, int* global_counter) {
 			      "STMT_PRINT", "STMT_RETURN", "STMT_BLOCK"};
   const char* kindr = stmtnames[s->kind - STMT_DECL];
 
-  printf("struct%d [ label=\"", local_counter);
+  printf("struct%d [label=\"", local_counter);
   printf("{%s|{", kindr);
 
-  if (s->decl != NULL) printf("|<f0> decl");
-  if (s->init_expr != NULL) printf("|<f1> init_expr");
-  if (s->expr != NULL) printf("|<f2> expr"); 
-  if (s->next_expr != NULL) printf("|<f3> next_expr");
-  if (s->body != NULL) printf("|<f4> body");
-  if (s->else_body != NULL) printf("|<f5> else_body");
-  if (s->next != NULL) printf("|<f6> next");
+  int first = 0;
+  if (s->decl != NULL) print_with_bar_unless_first(&first, "<f0> decl");
+  if (s->init_expr != NULL) print_with_bar_unless_first(&first, "<f1> init_expr");
+  if (s->expr != NULL) print_with_bar_unless_first(&first, "<f2> expr"); 
+  if (s->next_expr != NULL) print_with_bar_unless_first(&first, "<f3> next_expr");
+  if (s->body != NULL) print_with_bar_unless_first(&first, "<f4> body");
+  if (s->else_body != NULL) print_with_bar_unless_first(&first, "<f5> else_body");
+  if (s->next != NULL) print_with_bar_unless_first(&first, "<f6> next");
 
-  printf("\"}}];\n");
+  printf("}}\"];\n");
 
   //rec calls
   if (s->decl != NULL) declr = decl_print_dot(s->decl, global_counter);

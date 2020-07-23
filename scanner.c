@@ -1971,7 +1971,7 @@ case 53:
 YY_RULE_SETUP
 #line 103 "bminor.l"
 {
-                          yylval.stringval = strdup(yytext);
+                          yylval.stringval = strndup(yytext+1, strlen(yytext)-2);
                           return STRING_T;
                          }
 	YY_BREAK
