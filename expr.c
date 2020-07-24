@@ -94,10 +94,14 @@ int expr_print_dot(expr* s, int* global_counter) {
   printf("}}\"];\n");
 
   //rec calls
-  if (s->left != NULL) leftr = expr_print_dot(s->left, global_counter);
-  if (s->right != NULL) rightr = expr_print_dot(s->right, global_counter);
-
-  //todo transitions
+  if (s->left != NULL) {
+    leftr = expr_print_dot(s->left, global_counter);
+    printf("struct%d:f0 -> struct%d;\n", local_counter, leftr);    
+  }
+  if (s->right != NULL) {
+    rightr = expr_print_dot(s->right, global_counter);
+    printf("struct%d:f1 -> struct%d;\n", local_counter, rightr);        
+  }
 
   return local_counter;
 }

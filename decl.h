@@ -10,8 +10,8 @@ typedef struct decl {
 	struct type *type;
 	struct expr *value;
 	struct stmt *code;
-	struct symbol *symbol;
 	struct decl *next;
+	struct symbol *symbol;
 } decl;
 
 decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next);

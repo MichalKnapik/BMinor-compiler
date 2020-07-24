@@ -33,10 +33,14 @@ int param_print_dot(param_list* l, int* global_counter) {
   printf("}}\"];\n");
 
   //rec calls
-  if (l->type != NULL) typer = type_print_dot(l->type, global_counter);
-  if (l->next != NULL) nextr = param_print_dot(l->next, global_counter);
-
-  //todo - print transitions
+  if (l->type != NULL) {
+    typer = type_print_dot(l->type, global_counter);
+    printf("struct%d:f0 -> struct%d;\n", local_counter, typer);
+  }
+  if (l->next != NULL) {
+    nextr = param_print_dot(l->next, global_counter);
+    printf("struct%d:f1 -> struct%d;\n", local_counter, nextr);    
+  }
 
   return local_counter;
 }

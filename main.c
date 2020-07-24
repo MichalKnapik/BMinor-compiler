@@ -43,8 +43,7 @@ int main(int argc, char** argv) {
       printf("parse successful\n");
       
       int global_counter = 0;
-      if (program_root != NULL)
-      decl_print_dot(program_root, &global_counter);
+      if (program_root != NULL) decl_print_dot(program_root, &global_counter);
       //-------
       return 0;
     } else {

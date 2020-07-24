@@ -51,15 +51,34 @@ int stmt_print_dot(stmt* s, int* global_counter) {
   printf("}}\"];\n");
 
   //rec calls
-  if (s->decl != NULL) declr = decl_print_dot(s->decl, global_counter);
-  if (s->init_expr != NULL) init_exprr = expr_print_dot(s->init_expr, global_counter);
-  if (s->expr != NULL) exprr = expr_print_dot(s->expr, global_counter);
-  if (s->next_expr != NULL) next_exprr = expr_print_dot(s->next_expr, global_counter);
-  if (s->body != NULL) bodyr = stmt_print_dot(s->body, global_counter);
-  if (s->else_body != NULL) else_bodyr = stmt_print_dot(s->else_body, global_counter);
-  if (s->next != NULL) nextr = stmt_print_dot(s->next, global_counter);
+  if (s->decl != NULL) {
+    declr = decl_print_dot(s->decl, global_counter);
+    printf("struct%d:f0 -> struct%d;\n", local_counter, declr);
+  }
+  if (s->init_expr != NULL) {
+    init_exprr = expr_print_dot(s->init_expr, global_counter);
+    printf("struct%d:f1 -> struct%d;\n", local_counter, init_exprr);
+  }
+  if (s->expr != NULL) {
+    exprr = expr_print_dot(s->expr, global_counter);
+    printf("struct%d:f2 -> struct%d;\n", local_counter, exprr);
+  }
+  if (s->next_expr != NULL) {
+    next_exprr = expr_print_dot(s->next_expr, global_counter);
+    printf("struct%d:f3 -> struct%d;\n", local_counter, next_exprr);
+  }
+  if (s->body != NULL) {
+    bodyr = stmt_print_dot(s->body, global_counter);
+    printf("struct%d:f4 -> struct%d;\n", local_counter, bodyr);
+  }
+  if (s->else_body != NULL) {
+    else_bodyr = stmt_print_dot(s->else_body, global_counter);
+    printf("struct%d:f5 -> struct%d;\n", local_counter, else_bodyr);
+  }
+  if (s->next != NULL) {
+    nextr = stmt_print_dot(s->next, global_counter);
+    printf("struct%d:f6 -> struct%d;\n", local_counter, nextr);    
+  }
   
-  //todo - print transitions
-
   return local_counter;
 }
