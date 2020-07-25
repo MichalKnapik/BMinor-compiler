@@ -89,14 +89,15 @@ decl* program_root;
 %type <type_t> type returntype
 %type <param_l_t> paramlist nonemptyparamlist param
 
-%left INC_T DEC_T
-%right UNARYOP
-%right EXP_T
-%left TIMES_T DIV_T MOD_T
-%left PLUS_T MINUS_T
-%left LT_T LE_T GT_T GE_T EQ_T NEQ_T
-%left AND_T OR_T
 %left ASSG_T
+%left OR_T
+%left AND_T
+%left LT_T LE_T GT_T GE_T EQ_T NEQ_T
+%left PLUS_T MINUS_T
+%left TIMES_T DIV_T MOD_T
+%right EXP_T
+%right UNARYOP
+%left INC_T DEC_T
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE_KW_T

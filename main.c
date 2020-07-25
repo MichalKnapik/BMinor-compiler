@@ -40,11 +40,13 @@ int main(int argc, char** argv) {
     }
 
     if(!yyparse()) {
-      printf("parse successful\n");
-      
       int global_counter = 0;
-      if (program_root != NULL) decl_print_dot(program_root, &global_counter);
-      //-------
+      if (program_root != NULL) {
+	printf("digraph{\nnode [shape=record];\n");
+	decl_print_dot(program_root, &global_counter);
+	printf("}\n");
+      }
+
       return 0;
     } else {
       printf("parse failed!\n");
