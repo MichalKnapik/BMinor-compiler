@@ -49,7 +49,6 @@ Note that this function will not delete all of the objects contained within the 
 
 void hash_table_clear(struct hash_table *h);
 
-
 /** Delete a hash table.
 Note that this function will not delete all of the objects contained within the hash table.
 @param h The hash table to delete.

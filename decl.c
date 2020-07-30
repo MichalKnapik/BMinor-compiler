@@ -11,7 +11,8 @@ decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next) {
   rval->value = value;
   rval->code = code;
   rval->next = next;
-  
+  rval->symbol = NULL;
+
   return rval;
 }
 

@@ -9,13 +9,13 @@ typedef enum {
 	SYMBOL_GLOBAL
 } symbol_t;
 
-struct symbol {
+typedef struct symbol {
 	symbol_t kind;
-	struct type *type;
+	type *type;
 	char *name;
 	int which;
-};
+} symbol;
 
-struct symbol* symbol_create(symbol_t kind, struct type *type, char *name);
+symbol* symbol_create(symbol_t kind, type *type, char *name);
 
 #endif

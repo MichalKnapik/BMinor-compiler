@@ -2,8 +2,17 @@ CC		= gcc
 CCOPTS  	= -g -Wall 
 BISOPTS	        = --report=all
 
-all:	parser.c scanner.c 
-	$(CC) $(CCOPTS) parser.c scanner.c decl.c stmt.c expr.c type.c param_list.c smalltools.c main.c -o bminor
+all:	scanner_and_parser semantic_tools
+	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o main.c -o bminor
+
+scanner_and_parser: parser.c scanner.c
+	$(CC) $(CCOPTS) parser.c scanner.c -c
+	$(CC) $(CCOPTS) decl.c stmt.c expr.c type.c param_list.c smalltools.c -c
+	ld -r parser.o scanner.o decl.o stmt.o expr.o type.o param_list.o smalltools.o -o parser_and_scanner.o
+
+semantic_tools: 
+	$(CC) $(CCOPTS) hash_table.c scope.c symbol.c -c
+	ld -r scope.o symbol.o hash_table.o -o semantic_tools.o
 
 parser.c parser.h: bminor.y 
 	bison $(BISOPTS) --defines=parser.h --output=parser.c -v bminor.y

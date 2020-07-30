@@ -44,7 +44,7 @@ typedef struct expr {
 	const char *name;
 	int literal_value;
 	const char * string_literal;
-	struct symbol *symbol;
+	symbol *symbol;
 
 } expr;
 

@@ -11,7 +11,7 @@ typedef struct decl {
 	struct expr *value;
 	struct stmt *code;
 	struct decl *next;
-	struct symbol *symbol;
+	symbol *symbol;
 } decl;
 
 decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next);
