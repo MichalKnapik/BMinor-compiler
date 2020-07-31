@@ -82,3 +82,9 @@ int stmt_print_dot(stmt* s, int* global_counter) {
   
   return local_counter;
 }
+
+void stmt_resolve(stmt *d) {
+
+  //todo now
+
+}

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "smalltools.h"
 #include "decl.h"
+#include "scope.h"
+
+extern int error_count;
 
 decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next) {
 
@@ -57,4 +60,36 @@ int decl_print_dot(decl *d, int* global_counter) {
   }
 
   return local_counter;
+}
+
+void decl_resolve(decl *d) {
+
+  printf("**(decl)**\n");
+  print_scope();
+  printf("**********\n");
+
+  if (d == NULL) return;
+
+  //todo now
+
+  //global re-declaration error
+  if (scope_lookup(d->name) != NULL) { 
+    printf("Error: re-declaration of %s.\n", d->name);
+    error_count++;
+  }
+
+  symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL: SYMBOL_GLOBAL;
+  
+  d->symbol = symbol_create(kind, d->type, d->name);
+  expr_resolve(d->value);
+  scope_bind(d->name, d->symbol);
+
+  if (d->code != NULL) {
+    scope_enter();
+    param_list_resolve(d->type->params);
+    //    stmt_resolve(d->code);
+    scope_exit();
+  }
+
+  decl_resolve(d->next);
 }

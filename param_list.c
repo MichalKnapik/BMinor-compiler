@@ -3,6 +3,7 @@
 #include "param_list.h"
 #include "smalltools.h"
 #include "type.h"
+#include "scope.h"
 
 param_list* param_list_create(char *name, type *type, param_list *next) {
 
@@ -43,4 +44,18 @@ int param_print_dot(param_list* l, int* global_counter) {
   }
 
   return local_counter;
+}
+
+void param_list_resolve(param_list* l) {
+
+  while (l != NULL) {
+    l->symbol = symbol_create(SYMBOL_PARAM, l->type, l->name);
+    scope_bind(l->name, l->symbol);
+    l = l->next;
+  }
+
+  printf("**(param)**\n");
+  print_scope();
+  printf("**********\n");
+  
 }

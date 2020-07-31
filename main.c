@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "decl.h"
 #include "parser.h"
+#include "scope.h"
 
 extern int yyparse();
 extern int yylex();
@@ -56,6 +57,25 @@ int main(int argc, char** argv) {
     fclose(yyin);
   }
 
+  if (!strcmp(argv[1], "-typecheck")) {
+    if((yyin = fopen(argv[2], "r")) == NULL) {
+      perror("an issue with reading models");
+      exit(1);
+    }
+    if(!yyparse()) {
+      //todo now
+      if (program_root != NULL) {
+	make_scope();
+	scope_enter();
+	decl_resolve(program_root);
+	scope_exit();
+      }
+      return 0;
+    } else {
+      printf("parse failed!\n");
+      return 1;
+    }    
+  }
   
   return 0;
 }
