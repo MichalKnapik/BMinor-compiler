@@ -70,24 +70,31 @@ void decl_resolve(decl *d) {
 
   if (d == NULL) return;
 
-  //todo now
-
-  //global re-declaration error
-  if (scope_lookup(d->name) != NULL) { 
-    printf("Error: re-declaration of %s.\n", d->name);
-    error_count++;
+  //re-declaration error
+  symbol* lookup = scope_lookup_current(d->name);
+  if (lookup != NULL) { 
+    //current decl is the implementation of earlier prototype
+    if (!(scope_level() == 1 && d->type->kind == lookup->type->kind &&
+	  lookup->type->kind == TYPE_FUNCTION && d->code != NULL &&
+	  lookup->flags != FUN_DEF)) {
+      printf("Error: re-declaration of %s.\n", d->name);
+      error_count++;      
+    }
   }
 
   symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL: SYMBOL_GLOBAL;
-  
+
   d->symbol = symbol_create(kind, d->type, d->name);
   expr_resolve(d->value);
   scope_bind(d->name, d->symbol);
 
   if (d->code != NULL) {
+    d->symbol->flags = FUN_DEF;
     scope_enter();
     param_list_resolve(d->type->params);
-    //    stmt_resolve(d->code);
+    scope_enter();//a new scope to allow shadowing function parameters
+    stmt_resolve(d->code);
+    scope_exit();//---------------------------------------------------
     scope_exit();
   }
 

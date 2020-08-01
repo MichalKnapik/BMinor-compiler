@@ -27,6 +27,6 @@ typedef struct stmt {
 
 stmt* stmt_create(stmt_t kind, decl *decl, expr *init_expr, expr* exprf, expr *next_expr, stmt *body, stmt *else_body, stmt *next);
 int stmt_print_dot(stmt* s, int* global_counter);
-void stmt_resolve(stmt *d);
+void stmt_resolve(stmt *s);
 
 #endif

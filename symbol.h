@@ -9,8 +9,14 @@ typedef enum {
 	SYMBOL_GLOBAL
 } symbol_t;
 
+typedef enum {
+        NO_FLAG,
+	FUN_DEF
+} symbol_flags;
+
 typedef struct symbol {
 	symbol_t kind;
+        symbol_flags flags;
 	type *type;
 	char *name;
 	int which;

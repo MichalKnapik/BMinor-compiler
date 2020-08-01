@@ -4,6 +4,7 @@
 #include "stmt.h"
 #include "decl.h"
 #include "expr.h"
+#include "scope.h"
 
 stmt* stmt_create(stmt_t kind, decl *decl, expr *init_expr, expr *exprf, expr *next_expr,
 		  stmt *body, stmt *else_body, stmt *next) {
@@ -83,8 +84,32 @@ int stmt_print_dot(stmt* s, int* global_counter) {
   return local_counter;
 }
 
-void stmt_resolve(stmt *d) {
+void stmt_resolve(stmt *s) {
 
-  //todo now
+  //note: all this can be simplified, but it's easier to extend
+  //if written this way
+  if (s == NULL) return;
+
+  if (s->kind == STMT_DECL) decl_resolve(s->decl);
+  if (s->kind == STMT_EXPR) expr_resolve(s->expr);
+  if (s->kind == STMT_IF_ELSE) {
+    expr_resolve(s->expr);
+    stmt_resolve(s->body);
+    stmt_resolve(s->else_body);
+  }
+  if (s->kind == STMT_FOR) {
+    //put new scope here if you want to declare vars in for loop
+    expr_resolve(s->init_expr);
+    //----------------------------------------------
+    expr_resolve(s->expr);
+    expr_resolve(s->next_expr);    
+  }
+  if (s->kind == STMT_PRINT) expr_resolve(s->expr);
+  if (s->kind == STMT_RETURN) expr_resolve(s->expr);
+  if (s->kind == STMT_BLOCK) {
+    scope_enter();
+    stmt_resolve(s->body);
+    scope_exit();
+  }
 
 }
