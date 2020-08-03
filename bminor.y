@@ -81,7 +81,7 @@ decl* program_root;
 %token ASSG_T;
 
 %type <charval> CHAR_T
-%type <intval> INTEGER_T
+%type <intval> INTEGER_T arrsize
 %type <stringval> STRING_T IDENTIFIER_T
 %type <decl_t> declaration declarations program 
 %type <expr_t> expression optexpression arrayelementlist arrindexselect exprlist exprlist_n optinit 
@@ -161,7 +161,10 @@ returntype: CHAR_KW_T
 };
 
 arrsize:
-{ /* Not used, can be extended to handle range-aware arrays. */ }
+{
+  $$ = -1; //size of the array has not been established
+  /* not implemented - non-initialised arrays don't exist */
+}
 | INTEGER_T
 ;
 

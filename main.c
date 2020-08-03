@@ -8,6 +8,9 @@
 extern int yyparse();
 extern int yylex();
 extern decl* program_root;
+extern int error_count;
+
+//CLEAN ME UP, BEFORE YOU GO, GO
 
 int main(int argc, char** argv) {
 
@@ -65,10 +68,14 @@ int main(int argc, char** argv) {
     if(!yyparse()) {
       //todo now
       if (program_root != NULL) {
+	//first pass of typechecking: resolve names
 	make_scope();
 	scope_enter();
 	decl_resolve(program_root);
 	scope_exit();
+	printf("Found %d errors in name resolution.\n ", error_count);
+	//second pass of typechecking: assign types
+	//todo now
       }
       return 0;
     } else {

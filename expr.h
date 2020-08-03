@@ -5,31 +5,39 @@
 
 typedef enum {
 	EXPR_NAME,
+
 	EXPR_STR,
 	EXPR_INT,
 	EXPR_CHAR,	
 	EXPR_BOOL,
+
 	EXPR_ARG,
         EXPR_ARR_SUBS,
         EXPR_FUN_CALL,
-	EXPR_UN_MIN,
-	EXPR_NEG,
+	
 	EXPR_EXP,
 	EXPR_MUL,
 	EXPR_DIV,
 	EXPR_MOD,
 	EXPR_ADD,
 	EXPR_SUB,
+
+	EXPR_UN_MIN,
 	EXPR_INC,
 	EXPR_DEC,
+
 	EXPR_LE,
 	EXPR_LT,
-	EXPR_EQ,
 	EXPR_GT,
 	EXPR_GE,
+
+	EXPR_EQ,
 	EXPR_NEQ,
+
 	EXPR_AND,
 	EXPR_OR,
+	EXPR_NEG,
+
 	EXPR_ASSGN	
 } expr_t;
 
@@ -44,6 +52,7 @@ typedef struct expr {
 	const char *name;
 	int literal_value;
 	const char * string_literal;
+
 	symbol *symbol;
 
 } expr;

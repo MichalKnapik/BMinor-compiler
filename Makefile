@@ -11,8 +11,8 @@ scanner_and_parser: parser.c scanner.c
 	ld -r parser.o scanner.o decl.o stmt.o expr.o type.o param_list.o smalltools.o -o parser_and_scanner.o
 
 semantic_tools: 
-	$(CC) $(CCOPTS) hash_table.c scope.c symbol.c -c
-	ld -r scope.o symbol.o hash_table.o -o semantic_tools.o
+	$(CC) $(CCOPTS) hash_table.c scope.c symbol.c type_check.c -c
+	ld -r scope.o symbol.o hash_table.o -o semantic_tools.o type_check.o
 
 parser.c parser.h: bminor.y 
 	bison $(BISOPTS) --defines=parser.h --output=parser.c -v bminor.y

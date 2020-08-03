@@ -14,4 +14,9 @@ param_list* param_list_create(char *name, type *type, param_list *next);
 int param_print_dot(param_list* l, int* global_counter);
 void param_list_resolve(param_list* l);
 
+/* Copy depth is: name - reference, type - deepish, symbol - no copy;
+   copies the entire list. */
+param_list* param_list_copy(param_list* l);
+void param_list_delete(param_list* l); 
+
 #endif
