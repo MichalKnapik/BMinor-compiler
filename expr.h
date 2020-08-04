@@ -11,7 +11,6 @@ typedef enum {
 	EXPR_CHAR,	
 	EXPR_BOOL,
 
-	EXPR_ARG,
         EXPR_ARR_SUBS,
         EXPR_FUN_CALL,
 	
@@ -38,7 +37,8 @@ typedef enum {
 	EXPR_OR,
 	EXPR_NEG,
 
-	EXPR_ASSGN	
+	EXPR_ASSGN,
+	EXPR_ARG
 } expr_t;
 
 typedef struct expr {

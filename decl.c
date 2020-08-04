@@ -77,7 +77,7 @@ void decl_resolve(decl *d) {
     if (!(scope_level() == 1 && d->type->kind == lookup->type->kind &&
 	  lookup->type->kind == TYPE_FUNCTION && d->code != NULL &&
 	  lookup->flags != FUN_DEF)) {
-      printf("Error: re-declaration of %s.\n", d->name);
+      printf("Error in name resolution: re-declaration of %s.\n", d->name);
       error_count++;      
     }
   }
@@ -88,15 +88,14 @@ void decl_resolve(decl *d) {
   expr_resolve(d->value);
   scope_bind(d->name, d->symbol);
 
-  if (d->code != NULL) {
-    d->symbol->flags = FUN_DEF;
-    scope_enter();
-    param_list_resolve(d->type->params);
-    scope_enter();//a new scope to allow shadowing function parameters
-    stmt_resolve(d->code);
-    scope_exit();//---------------------------------------------------
-    scope_exit();
-  }
+  if (d->code != NULL) d->symbol->flags = FUN_DEF;
+  //todo current???
+  scope_enter();
+  param_list_resolve(d->type->params);
+  scope_enter();//a new scope to allow shadowing function parameters
+  stmt_resolve(d->code);
+  scope_exit();//---------------------------------------------------
+  scope_exit();
 
   decl_resolve(d->next);
 }

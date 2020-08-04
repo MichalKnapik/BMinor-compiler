@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "smalltools.h"
+#include "type.h"
 #include "stmt.h"
 #include "decl.h"
 #include "expr.h"

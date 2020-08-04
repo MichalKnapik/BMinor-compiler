@@ -67,11 +67,11 @@ int expr_print_dot(expr* s, int* global_counter) {
   int leftr = -1;
   int rightr = -1;
 
-  const char * exprnames [] = {"EXPR_NAME", "EXPR_STR", "EXPR_INT", "EXPR_CHAR", "EXPR_BOOL", "EXPR_ARG",
-			      "EXPR_ARR_SUBS", "EXPR_FUN_CALL", "EXPR_UN_MIN", "EXPR_NEG", "EXPR_EXP", "EXPR_MUL",
-			      "EXPR_DIV", "EXPR_MOD", "EXPR_ADD", "EXPR_SUB", "EXPR_INC", "EXPR_DEC", "EXPR_LE",
-			      "EXPR_LT", "EXPR_EQ", "EXPR_GT", "EXPR_GE", "EXPR_NEQ", "EXPR_AND", "EXPR_OR",
-			      "EXPR_ASSGN"};
+  const char * exprnames [] = {"EXPR_NAME", "EXPR_STR", "EXPR_INT", "EXPR_CHAR", "EXPR_BOOL", "EXPR_ARR_SUBS",
+			       "EXPR_FUN_CALL", "EXPR_EXP", "EXPR_MUL", "EXPR_DIV", "EXPR_MOD", "EXPR_ADD",
+			       "EXPR_SUB", "EXPR_UN_MIN", "EXPR_INC", "EXPR_DEC", "EXPR_LE", "EXPR_LT", "EXPR_GT",
+			       "EXPR_GE", "EXPR_EQ", "EXPR_NEQ", "EXPR_AND", "EXPR_OR", "EXPR_NEG", "EXPR_ASSGN",
+			       "EXPR_ARG"};
 
   const char* kindr = exprnames[s->kind - EXPR_NAME];
 
@@ -116,7 +116,7 @@ void expr_resolve(expr *e) {
   if(e->kind == EXPR_NAME) {
     e->symbol = scope_lookup(e->name);
     if (e->symbol == NULL) {
-      printf("Error: unknown name %s.\n", e->name);
+      printf("Error in name resolution: unknown name %s.\n", e->name);
       error_count++;
     }
 
