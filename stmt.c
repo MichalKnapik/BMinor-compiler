@@ -113,4 +113,5 @@ void stmt_resolve(stmt *s) {
     scope_exit();
   }
 
+  stmt_resolve(s->next);
 }

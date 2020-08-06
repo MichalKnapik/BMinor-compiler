@@ -119,7 +119,6 @@ void expr_resolve(expr *e) {
       printf("Error in name resolution: unknown name %s.\n", e->name);
       error_count++;
     }
-
   } else {
     expr_resolve(e->left);
     expr_resolve(e->right);

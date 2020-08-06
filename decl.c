@@ -89,7 +89,7 @@ void decl_resolve(decl *d) {
   scope_bind(d->name, d->symbol);
 
   if (d->code != NULL) d->symbol->flags = FUN_DEF;
-  //todo current???
+
   scope_enter();
   param_list_resolve(d->type->params);
   scope_enter();//a new scope to allow shadowing function parameters

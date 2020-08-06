@@ -74,11 +74,11 @@ int main(int argc, char** argv) {
 	scope_enter();
 	decl_resolve(program_root);
 	scope_exit();
-	printf("Found %d errors in name resolution.\n", error_count);
+	printf("Found %d error(s) in name resolution.\n", error_count);
 	//second pass of typechecking: assign types
 	//todo now
 	decl_typecheck(program_root);
-	printf("Found %d errors in total.\n ", error_count);	
+	printf("Found %d error(s) in total.\n ", error_count);	
       }
       return error_count > 0;
     } else {

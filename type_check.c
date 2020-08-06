@@ -41,6 +41,7 @@ int type_equals(type *a, type *b) {
 }
 
 type* type_copy(type *t) {
+  if (t == NULL) return NULL;
   return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params));
 }
 
@@ -56,6 +57,7 @@ void type_delete(type *t) {
 type* expr_typecheck(expr *e) {
 
   if (e == NULL) return NULL;
+
   type *lt = expr_typecheck(e->left);
   type *rt = expr_typecheck(e->right);
 
@@ -63,7 +65,7 @@ type* expr_typecheck(expr *e) {
   switch (e->kind) {
 
   case EXPR_NAME:
-    result = type_copy(e->symbol->type);
+    result = e->symbol == NULL? NULL : type_copy(e->symbol->type);
     break;
 
   case EXPR_STR:
@@ -88,8 +90,8 @@ type* expr_typecheck(expr *e) {
       }
       result = type_copy(lt->subtype);
     } else {
-	printf("Error: %s is not an array.\n", e->left->name);
-	++error_count;
+      printf("Error: %s is not an array.\n", e->left->name);
+      ++error_count;
       result = type_copy(lt);
     }
     break;    
@@ -207,7 +209,7 @@ type* expr_typecheck(expr *e) {
   case EXPR_ASSGN:
 
     result = type_copy(lt);
-    if (e->left->kind != EXPR_NAME) {
+    if (e->left->kind != EXPR_NAME && e->left->kind != EXPR_ARR_SUBS) {
       printf("Error: assignment to non-variable.\n");
       ++error_count;
     } else {
@@ -236,26 +238,24 @@ type* expr_typecheck(expr *e) {
 
 void decl_typecheck(decl *d) {
 
+  if (d == NULL) return;
+
   if (d->value != NULL) {//typecheck var decl
 
     //typecheck array (again - it'd be better to deal with array detection in AST)
-    if (d->value->kind == EXPR_ARG) { 
+    if (d->value->kind == EXPR_ARG) {
       if (d->type->kind == TYPE_ARRAY) { 
 	array_typecheck(d->value, d->type->subtype, d->name);
       } else {
 	printf("Error: can't assign array to %s.\n", d->name);
 	++error_count;
       }
-      return;
     }
-
-    //typecheck vars
-    if (d->type->kind == TYPE_ARRAY) {
+    else if (d->type->kind == TYPE_ARRAY) {
       printf("Error: can't assign non-array init value to %s.\n", d->name);
       ++error_count;
-      return;
     }
-
+    else {//typecheck vars
     type *t = expr_typecheck(d->value);
 
     if (!type_equals(t, d->symbol->type)) {
@@ -264,16 +264,20 @@ void decl_typecheck(decl *d) {
     }
 
     type_delete(t);
+    }
   }
 
   //typecheck function 
-  if (d->code) {
+  if (d->code != NULL) {
     curr_function_type = type_copy(d->type->subtype);
     curr_function_name = d->name;
     stmt_typecheck(d->code);
     type_delete(curr_function_type);
     curr_function_type = NULL;
   }
+
+  if (d->next != NULL) decl_typecheck(d->next);
+
 }
 
 void array_typecheck(expr *e, type* itemtype, const char* arrname) {
@@ -300,6 +304,8 @@ void array_typecheck(expr *e, type* itemtype, const char* arrname) {
 
 
 void stmt_typecheck(stmt *s) {
+
+  if (s == NULL) return;
 
   type *t = NULL;
   expr* e = NULL;
@@ -378,4 +384,5 @@ void stmt_typecheck(stmt *s) {
     break;
   }
 
+  stmt_typecheck(s->next);
 }
