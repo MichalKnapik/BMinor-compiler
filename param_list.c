@@ -80,7 +80,9 @@ param_list* param_list_copy(param_list* l) {
 }
 
 void param_list_delete(param_list* l) {
+
   if (l == NULL) return;
+
   type_delete(l->type);
   param_list_delete(l->next);
   free(l);

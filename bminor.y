@@ -222,6 +222,11 @@ statement: IDENTIFIER_T COLON_T type optinit SEMICOLON_T
 {
   $$ = stmt_create(STMT_RETURN, NULL, NULL, $2, NULL, NULL, NULL, NULL);
 }
+| RETURN_KW_T SEMICOLON_T
+{
+  //maybe it'd make sense to allow void expression
+  $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+}
 | LCURL_T statements RCURL_T
 {
   $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $2, NULL, NULL);

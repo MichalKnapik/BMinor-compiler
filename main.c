@@ -4,6 +4,7 @@
 #include "decl.h"
 #include "parser.h"
 #include "scope.h"
+#include "type_check.h"
 
 extern int yyparse();
 extern int yylex();
@@ -73,11 +74,13 @@ int main(int argc, char** argv) {
 	scope_enter();
 	decl_resolve(program_root);
 	scope_exit();
-	printf("Found %d errors in name resolution.\n ", error_count);
+	printf("Found %d errors in name resolution.\n", error_count);
 	//second pass of typechecking: assign types
 	//todo now
+	decl_typecheck(program_root);
+	printf("Found %d errors in total.\n ", error_count);	
       }
-      return 0;
+      return error_count > 0;
     } else {
       printf("parse failed!\n");
       return 1;

@@ -6,6 +6,8 @@
 #include "param_list.h"
 
 extern int error_count;
+type* curr_function_type = NULL; //this is the currently typechecked function
+const char* curr_function_name = NULL;
 
 int is_basic(type* a) {
   return (a->kind == TYPE_BOOLEAN || a->kind == TYPE_CHARACTER || a->kind == TYPE_INTEGER || a->kind == TYPE_STRING);
@@ -43,6 +45,9 @@ type* type_copy(type *t) {
 }
 
 void type_delete(type *t) {
+
+  if (t == NULL) return;
+
   param_list_delete(t->params);
   type_delete(t->subtype);
   free(t);
@@ -50,12 +55,12 @@ void type_delete(type *t) {
 
 type* expr_typecheck(expr *e) {
 
-  if(e == NULL) return NULL;
+  if (e == NULL) return NULL;
   type *lt = expr_typecheck(e->left);
   type *rt = expr_typecheck(e->right);
 
   type *result = NULL;
-  switch(e->kind) {
+  switch (e->kind) {
 
   case EXPR_NAME:
     result = type_copy(e->symbol->type);
@@ -75,6 +80,7 @@ type* expr_typecheck(expr *e) {
     break;
 
   case EXPR_ARR_SUBS:
+
     if (lt->kind == TYPE_ARRAY) {
       if (rt->kind != TYPE_INTEGER) {
 	printf("Error: non-integer index used when accessing array %s.\n", e->left->name);
@@ -221,7 +227,7 @@ type* expr_typecheck(expr *e) {
     }
     break;
   }
-
+    
   type_delete(lt);
   type_delete(rt);
 
@@ -235,7 +241,7 @@ void decl_typecheck(decl *d) {
     //typecheck array (again - it'd be better to deal with array detection in AST)
     if (d->value->kind == EXPR_ARG) { 
       if (d->type->kind == TYPE_ARRAY) { 
-	array_typecheck(d->value, d->type, d->name);
+	array_typecheck(d->value, d->type->subtype, d->name);
       } else {
 	printf("Error: can't assign array to %s.\n", d->name);
 	++error_count;
@@ -252,7 +258,7 @@ void decl_typecheck(decl *d) {
 
     type *t = expr_typecheck(d->value);
 
-    if(!type_equals(t, d->symbol->type)) {
+    if (!type_equals(t, d->symbol->type)) {
       printf("Error: mismatch in initialisation of var %s.\n", d->name);
       ++error_count;
     }
@@ -260,7 +266,14 @@ void decl_typecheck(decl *d) {
     type_delete(t);
   }
 
-  if(d->code) stmt_typecheck(d->code);
+  //typecheck function 
+  if (d->code) {
+    curr_function_type = type_copy(d->type->subtype);
+    curr_function_name = d->name;
+    stmt_typecheck(d->code);
+    type_delete(curr_function_type);
+    curr_function_type = NULL;
+  }
 }
 
 void array_typecheck(expr *e, type* itemtype, const char* arrname) {
@@ -278,8 +291,9 @@ void array_typecheck(expr *e, type* itemtype, const char* arrname) {
       printf("Error: array %s type init mismatch.\n", arrname);
       ++error_count;
     }
+
     e = e->right;
-    type_delete(itemtype);
+    type_delete(curritemtype);
   }
 
 }
@@ -287,28 +301,81 @@ void array_typecheck(expr *e, type* itemtype, const char* arrname) {
 
 void stmt_typecheck(stmt *s) {
 
-  //curr todo
+  type *t = NULL;
+  expr* e = NULL;
+  switch(s->kind) {
 
-  /* type *t; */
-  /* switch(s->kind) { */
-  /* case STMT_EXPR: */
-  /*   t = expr_typecheck(s->expr); */
-  /*   type_delete(t); */
-  /*   break; */
-  /* case STMT_BLOCK: */
-  /*   t = expr_typecheck(s->body); */
-  /*   type_delete(t); */
-  /*   break; */
-  /* case STMT_IF_THEN: */
-  /*   t = expr_typecheck(s->expr); */
-  /*   if(t->kind!=TYPE_BOOLEAN) { */
-  /*     /\* display an error *\/ */
-  /*   } */
-  /*   type_delete(t); */
-  /*   stmt_typecheck(s->body); */
-  /*   stmt_typecheck(s->else_body); */
-  /*   break; */
-  /*   /\* more cases here *\/ */
-  /* } */
+  case STMT_DECL:
+    decl_typecheck(s->decl);
+    break;
+    
+  case STMT_EXPR:
+    t = expr_typecheck(s->expr);
+    type_delete(t);
+    break;
+
+  case STMT_IF_ELSE:
+    t = expr_typecheck(s->expr);
+    if (t->kind != TYPE_BOOLEAN) {
+      printf("Error: nonboolean condition in if-else loop.\n");
+      ++error_count;
+    }
+    type_delete(t);
+    stmt_typecheck(s->body);
+    stmt_typecheck(s->else_body);
+    break;
+
+  case STMT_FOR:
+    t = expr_typecheck(s->init_expr);
+    type_delete(t);
+    t = expr_typecheck(s->expr); 
+    if (t->kind != TYPE_BOOLEAN) {
+      printf("Error: nonboolean condition in for loop.\n");
+      ++error_count;
+    }
+    type_delete(t);    
+    t = expr_typecheck(s->next_expr); 
+    type_delete(t);
+    stmt_typecheck(s->body);
+    break;
+
+  case STMT_PRINT:
+    e = s->expr;
+    while (e != NULL) {
+      t = expr_typecheck(e->left); 
+      type_delete(t);
+      e = e->right;
+    }
+    break;
+
+  case STMT_RETURN:
+
+    if (s->expr == NULL) {
+      if (curr_function_type->kind != TYPE_VOID) {
+	printf("Error: void return in non-void function.\n");
+	++error_count;
+	return;
+      }
+      return;
+    }
+
+    if (curr_function_type->kind == TYPE_VOID) {
+      printf("Error: non-void return in void function.\n");
+      ++error_count;
+      return;
+    }
+
+    t = expr_typecheck(s->expr);
+    if (!type_equals(curr_function_type, t)){
+      printf("Error: return type mismatch in function return to %s.\n", curr_function_name);
+      ++error_count;	
+    }
+    type_delete(t);
+    break;
+
+  case STMT_BLOCK:
+    stmt_typecheck(s->body);
+    break;
+  }
 
 }
