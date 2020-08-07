@@ -3,8 +3,7 @@
 #include "smalltools.h"
 #include "expr.h"
 #include "scope.h"
-
-extern int error_count;
+#include "name_resolution.h"
 
 expr* expr_create(expr_t kind, struct expr *left, expr *right) {
 
@@ -107,21 +106,4 @@ int expr_print_dot(expr* s, int* global_counter) {
   }
 
   return local_counter;
-}
-
-void expr_resolve(expr *e) {
-
-  if (e == NULL) return;
-
-  if(e->kind == EXPR_NAME) {
-    e->symbol = scope_lookup(e->name);
-    if (e->symbol == NULL) {
-      printf("Error in name resolution: unknown name %s.\n", e->name);
-      error_count++;
-    }
-  } else {
-    expr_resolve(e->left);
-    expr_resolve(e->right);
-  }
-
 }

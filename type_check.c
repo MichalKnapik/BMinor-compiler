@@ -9,51 +9,6 @@ extern int error_count;
 type* curr_function_type = NULL; //this is the currently typechecked function
 const char* curr_function_name = NULL;
 
-int is_basic(type* a) {
-  return (a->kind == TYPE_BOOLEAN || a->kind == TYPE_CHARACTER || a->kind == TYPE_INTEGER || a->kind == TYPE_STRING);
-}
-
-int type_equals(type *a, type *b) {
-
-  if (a->kind == b->kind) {
-    if (is_basic(a)) return 1;
-    if (a->kind == TYPE_ARRAY) return type_equals(a->subtype, b->subtype);
-    if (a->kind == TYPE_FUNCTION) {
-
-      param_list* pla = a->params;
-      param_list* plb = b->params;
-
-      while (1) {
-	if (pla == NULL && plb == NULL) break;
-	else if ((pla != NULL && plb == NULL) || (pla == NULL && plb != NULL)) return 0;
-	if (!type_equals(pla->type, plb->type)) return 0;
-
-	pla = pla->next;
-	plb = plb->next;	
-      }
-
-      return type_equals(a->subtype, b->subtype);
-    }
-
-  }
-
-  return 0;
-}
-
-type* type_copy(type *t) {
-  if (t == NULL) return NULL;
-  return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params));
-}
-
-void type_delete(type *t) {
-
-  if (t == NULL) return;
-
-  param_list_delete(t->params);
-  type_delete(t->subtype);
-  free(t);
-}
-
 type* expr_typecheck(expr *e) {
 
   if (e == NULL) return NULL;
@@ -65,7 +20,9 @@ type* expr_typecheck(expr *e) {
   switch (e->kind) {
 
   case EXPR_NAME:
-    result = e->symbol == NULL? NULL : type_copy(e->symbol->type);
+    //a bit arbitrary - if label is unknown then it is of void type
+    if (e->symbol == NULL) result = type_create(TYPE_VOID, NULL, NULL);
+    else result = type_copy(e->symbol->type);
     break;
 
   case EXPR_STR:
@@ -82,7 +39,6 @@ type* expr_typecheck(expr *e) {
     break;
 
   case EXPR_ARR_SUBS:
-
     if (lt->kind == TYPE_ARRAY) {
       if (rt->kind != TYPE_INTEGER) {
 	printf("Error: non-integer index used when accessing array %s.\n", e->left->name);
@@ -98,11 +54,10 @@ type* expr_typecheck(expr *e) {
 
   case EXPR_FUN_CALL:
 
-    result = type_copy(lt);
+    result = type_copy(lt->subtype);
     const char* fname = NULL;
     if (e->left != NULL && e->left->name != NULL) fname = e->left->name;
-
-    if (result->kind != TYPE_FUNCTION) {
+    if (lt->kind != TYPE_FUNCTION) {
 	printf("Error: unknown function %s.\n", fname);
 	++error_count;
 	break;
@@ -229,7 +184,7 @@ type* expr_typecheck(expr *e) {
     }
     break;
   }
-    
+
   type_delete(lt);
   type_delete(rt);
 
@@ -373,7 +328,7 @@ void stmt_typecheck(stmt *s) {
 
     t = expr_typecheck(s->expr);
     if (!type_equals(curr_function_type, t)){
-      printf("Error: return type mismatch in function return to %s.\n", curr_function_name);
+      printf("Error: return type mismatch in %s.\n", curr_function_name);
       ++error_count;	
     }
     type_delete(t);

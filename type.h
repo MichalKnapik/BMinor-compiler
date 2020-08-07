@@ -21,5 +21,9 @@ typedef struct type {
 
 type* type_create(type_t kind, type *subtype, param_list *params);
 int type_print_dot(type *d, int* global_counter);
+int is_basic(type* a);
+int type_equals(type *a, type *b);
+type* type_copy(type *t);
+void type_delete(type *t);
 
 #endif

@@ -64,6 +64,5 @@ expr* expr_create_boolean_literal(int c);
 expr* expr_create_char_literal(char c);
 expr* expr_create_string_literal(const char *str);
 int expr_print_dot(expr* s, int* global_counter);
-void expr_resolve(expr *e);
 
 #endif

@@ -6,8 +6,6 @@
 #include "type_check.h"
 #include "scope.h"
 
-extern int error_count;
-
 param_list* param_list_create(char *name, type *type, param_list *next) {
 
   param_list* rval = malloc(sizeof(param_list));
@@ -47,20 +45,6 @@ int param_print_dot(param_list* l, int* global_counter) {
   }
 
   return local_counter;
-}
-
-void param_list_resolve(param_list* l) {
-
-  while (l != NULL) {
-    if (scope_lookup_current(l->name) != NULL) {
-      printf("Error: duplicate parameter %s.\n", l->name);
-      ++error_count;
-    }
-    l->symbol = symbol_create(SYMBOL_PARAM, l->type, l->name);
-    scope_bind(l->name, l->symbol);
-    l = l->next;
-  }
-
 }
 
 param_list* param_list_copy(param_list* l) {

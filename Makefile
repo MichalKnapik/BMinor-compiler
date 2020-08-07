@@ -11,8 +11,8 @@ scanner_and_parser: parser.c scanner.c
 	ld -r parser.o scanner.o decl.o stmt.o expr.o type.o param_list.o smalltools.o -o parser_and_scanner.o
 
 semantic_tools: 
-	$(CC) $(CCOPTS) hash_table.c scope.c symbol.c type_check.c -c
-	ld -r scope.o symbol.o hash_table.o -o semantic_tools.o type_check.o
+	$(CC) $(CCOPTS) hash_table.c scope.c symbol.c name_resolution.c type_check.c -c
+	ld -r scope.o symbol.o hash_table.o name_resolution.o type_check.o -o semantic_tools.o 
 
 parser.c parser.h: bminor.y 
 	bison $(BISOPTS) --defines=parser.h --output=parser.c -v bminor.y
@@ -23,6 +23,7 @@ scanner.c: bminor.l parser.h
 test:
 	. tests/scanner/run_all_tests.sh
 	. tests/parser/run_all_tests.sh
+	. tests/typecheck/run_all_tests.sh
 
 clean:
 	rm -rf *~ *.yy.c *.o ltsNet *.tab.* *.dot \#* parser.h parser.c

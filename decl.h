@@ -16,7 +16,6 @@ typedef struct decl {
 
 decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next);
 int decl_print_dot(decl *d, int* global_counter);
-void decl_resolve(struct decl *d);
 
 #endif
 

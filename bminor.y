@@ -181,6 +181,10 @@ optfbody: SEMICOLON_T
 {
   $$ = NULL;
 }
+| ASSG_T LCURL_T RCURL_T
+{
+  $$ = NULL;
+}
 | ASSG_T LCURL_T statements RCURL_T
 {
   $$ = $3;

@@ -4,6 +4,7 @@
 #include "decl.h"
 #include "parser.h"
 #include "scope.h"
+#include "name_resolution.h"
 #include "type_check.h"
 
 extern int yyparse();
@@ -70,6 +71,7 @@ int main(int argc, char** argv) {
       //todo now
       if (program_root != NULL) {
 	//first pass of typechecking: resolve names
+	printf("Name resolution...\n");
 	make_scope();
 	scope_enter();
 	decl_resolve(program_root);
@@ -77,8 +79,10 @@ int main(int argc, char** argv) {
 	printf("Found %d error(s) in name resolution.\n", error_count);
 	//second pass of typechecking: assign types
 	//todo now
+	int preverrs = error_count;
+	printf("Typechecking...\n");	
 	decl_typecheck(program_root);
-	printf("Found %d error(s) in total.\n ", error_count);	
+	printf("Found %d error(s) while typechecking.\n", error_count - preverrs);	
       }
       return error_count > 0;
     } else {

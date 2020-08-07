@@ -3,7 +3,6 @@
 #include <assert.h>
 
 scope* scope_stack = NULL;
-int error_count = 0; /* counts typecheck and re-declaration errors */
 
 void make_scope() {
   if (scope_stack == NULL) scope_stack = malloc(sizeof(scope));
