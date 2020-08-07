@@ -52,11 +52,18 @@ type* expr_typecheck(expr *e) {
     }
     break;    
 
-  case EXPR_FUN_CALL:
-
-    result = type_copy(lt->subtype);
+  case EXPR_FUN_CALL: {
     const char* fname = NULL;
     if (e->left != NULL && e->left->name != NULL) fname = e->left->name;
+
+    if (lt->kind != TYPE_FUNCTION) {
+	printf("Error: unknown function %s.\n", fname);
+	++error_count;
+	result = type_copy(lt);
+	break;      
+    }
+
+    result = type_copy(lt->subtype);
     if (lt->kind != TYPE_FUNCTION) {
 	printf("Error: unknown function %s.\n", fname);
 	++error_count;
@@ -92,7 +99,7 @@ type* expr_typecheck(expr *e) {
     if (declared_param != NULL) {
       printf("Error: too few arguments in call to %s.\n", fname);
       ++error_count;
-    }
+    }}
     break;    
 
   case EXPR_EXP:
@@ -175,7 +182,6 @@ type* expr_typecheck(expr *e) {
 	++error_count;
 	break;
       }
-
       if (!type_equals(lt,rt)) {
 	printf("Error: assigning object of wrong type to %s.\n", varname);
 	++error_count;      
@@ -256,7 +262,6 @@ void array_typecheck(expr *e, type* itemtype, const char* arrname) {
   }
 
 }
-
 
 void stmt_typecheck(stmt *s) {
 

@@ -29,4 +29,4 @@ clean:
 	rm -rf *~ *.yy.c *.o ltsNet *.tab.* *.dot \#* parser.h parser.c
 
 count:
-	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* parser.* scanner.* bminor.l bminor.y main.c | wc -l
+	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* parser.* scanner.* bminor.l bminor.y main.c name_resolution.* type_check.* | wc -l
