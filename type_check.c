@@ -3,11 +3,14 @@
 #include "type_check.h"
 #include "type.h"
 #include "stmt.h"
+#include "scope.h"
+#include "hash_table.h"
 #include "param_list.h"
 
 extern int error_count;
 type* curr_function_type = NULL; //this is the currently typechecked function
 const char* curr_function_name = NULL;
+extern struct hash_table* fundecls; //this is the table with function declarations
 
 type* expr_typecheck(expr *e) {
 
@@ -226,16 +229,27 @@ void decl_typecheck(decl *d) {
 
     type_delete(t);
     }
+  } else {
+    //typecheck function declaration
+    //bind function type to name
+    type* registered_fun_type = hash_table_lookup(fundecls, d->name);
+    if (registered_fun_type != NULL) {
+      if (!type_equals(registered_fun_type, d->type)) {
+	printf("Error: error in defn/redeclaration of fun %s.\n", d->name);
+	++error_count;
+      }
+    }
+    else hash_table_insert(fundecls, d->name, d->type);
   }
 
-  //typecheck function 
-  if (d->code != NULL) {
+  if (d->code != NULL) {//typecheck function definition
     curr_function_type = type_copy(d->type->subtype);
     curr_function_name = d->name;
     stmt_typecheck(d->code);
-    type_delete(curr_function_type);
     curr_function_type = NULL;
+    type_delete(curr_function_type);
   }
+
 
   if (d->next != NULL) decl_typecheck(d->next);
 

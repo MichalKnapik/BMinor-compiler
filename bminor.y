@@ -183,7 +183,7 @@ optfbody: SEMICOLON_T
 }
 | ASSG_T LCURL_T RCURL_T
 {
-  $$ = NULL;
+  $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 | ASSG_T LCURL_T statements RCURL_T
 {

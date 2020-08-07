@@ -5,12 +5,15 @@
 #include "parser.h"
 #include "scope.h"
 #include "name_resolution.h"
+#include "hash_table.h"
 #include "type_check.h"
 
 extern int yyparse();
 extern int yylex();
 extern decl* program_root;
 extern int error_count;
+struct hash_table* fundecls = NULL;
+
 
 //CLEAN ME UP, BEFORE YOU GO, GO
 
@@ -70,6 +73,7 @@ int main(int argc, char** argv) {
     if(!yyparse()) {
       //todo now
       if (program_root != NULL) {
+
 	//first pass of typechecking: resolve names
 	printf("Name resolution...\n");
 	make_scope();
@@ -77,12 +81,14 @@ int main(int argc, char** argv) {
 	decl_resolve(program_root);
 	scope_exit();
 	printf("Found %d error(s) in name resolution.\n", error_count);
+
 	//second pass of typechecking: assign types
-	//todo now
+	fundecls = hash_table_create(0,0);
 	int preverrs = error_count;
-	printf("Typechecking...\n");	
+	printf("Typechecking...\n");
 	decl_typecheck(program_root);
-	printf("Found %d error(s) while typechecking.\n", error_count - preverrs);	
+	printf("Found %d error(s) while typechecking.\n", error_count - preverrs);
+	hash_table_delete(fundecls);
       }
       return error_count > 0;
     } else {
