@@ -2,8 +2,11 @@ CC		= gcc
 CCOPTS  	= -g -Wall 
 BISOPTS	        = --report=all
 
-all:	scanner_and_parser semantic_tools
-	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o main.c -o bminor
+all:	scanner_and_parser semantic_tools codegen
+	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o codegen.o main.c -o bminor
+
+codegen:
+	$(CC) $(CCOPTS) codegen.c -c	
 
 scanner_and_parser: parser.c scanner.c
 	$(CC) $(CCOPTS) parser.c scanner.c -c

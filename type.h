@@ -9,7 +9,7 @@ typedef enum {
 	TYPE_CHARACTER,
 	TYPE_INTEGER,
 	TYPE_STRING,
-	TYPE_ARRAY,
+ 	TYPE_ARRAY,
 	TYPE_FUNCTION,
 } type_t;
 

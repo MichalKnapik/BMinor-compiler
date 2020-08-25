@@ -19,7 +19,7 @@ typedef struct symbol {
         symbol_flags flags;
 	type *type;
 	char *name;
-	int which;
+        int which; //param number in function
 } symbol;
 
 symbol* symbol_create(symbol_t kind, type *type, char *name);

@@ -7,13 +7,13 @@
 #include "name_resolution.h"
 #include "hash_table.h"
 #include "type_check.h"
+#include "codegen.h"
 
 extern int yyparse();
 extern int yylex();
 extern decl* program_root;
 extern int error_count;
 struct hash_table* fundecls = NULL;
-
 
 //CLEAN ME UP, BEFORE YOU GO, GO
 
