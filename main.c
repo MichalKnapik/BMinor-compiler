@@ -49,13 +49,7 @@ int main(int argc, char** argv) {
     }
 
     if(!yyparse()) {
-      int global_counter = 0;
-      if (program_root != NULL) {
-	printf("digraph{\nnode [shape=record];\n");
-	decl_print_dot(program_root, &global_counter);
-	printf("}\n");
-      }
-
+      if (program_root != NULL) print_dot(program_root);
       return 0;
     } else {
       printf("parse failed!\n");
@@ -80,6 +74,7 @@ int main(int argc, char** argv) {
 	scope_enter();
 	decl_resolve(program_root);
 	scope_exit();
+	mark_program_symbols_with_numbers(program_root);
 	printf("Found %d error(s) in name resolution.\n", error_count);
 
 	//second pass of typechecking: assign types
@@ -89,6 +84,9 @@ int main(int argc, char** argv) {
 	decl_typecheck(program_root);
 	printf("Found %d error(s) while typechecking.\n", error_count - preverrs);
 	hash_table_delete(fundecls);
+
+	//print dot
+	print_dot(program_root);	
       }
       return error_count > 0;
     } else {

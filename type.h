@@ -17,6 +17,7 @@ typedef struct type {
 	type_t kind;
 	struct param_list *params;
 	struct type *subtype;
+        int arrsize;
 } type;
 
 type* type_create(type_t kind, type *subtype, param_list *params);

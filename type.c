@@ -9,6 +9,7 @@ type* type_create(type_t kind, type *subtype, param_list *params) {
   rval->kind = kind;
   rval->params = params;
   rval->subtype = subtype;
+  rval->arrsize = -1;
 
   return rval;
 }
@@ -29,6 +30,10 @@ int type_print_dot(type *t, int* global_counter) {
   int first = 0;
   if (t->params != NULL) print_with_bar_unless_first(&first, "<f0> params");
   if (t->subtype != NULL) print_with_bar_unless_first(&first, "<f1> subtype");
+  if (t->arrsize >= 0) {
+    print_with_bar_unless_first(&first, " size = ");
+    printf("%d", t->arrsize);
+  }
 
   printf("}}\"];\n");
 

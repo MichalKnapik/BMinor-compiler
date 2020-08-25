@@ -94,12 +94,23 @@ const char* symbol_codegen(symbol* s) {
   //s->kind == SYMBOL_LOCAL
   //local fun definitions are not allowed, so this must be a local var decl/use
 
-  //plain var
+  //TODO - rbp depth
 
-  //array - first compute its size
-  
+  //array
+  if (s->type->kind == TYPE_ARRAY) {
+    int rbpoffset = s->type->arrsize * 8;    
+    char* nlab = calloc((get_number_of_positions(rbpoffset)+5), sizeof(char));
+    strcpy(nlab, "rbp-");
+    sprintf(nlab+4, "%d", rbpoffset);
+    return nlab;
+  }
+
+  //plain var
+  return "rbp-8";
+    
   //todo
-  //note 1 - I think that array size should be preserved!
+  //note 1 - I think that array size should be preserved! (OK, it is)
   //note 2 - not neccesarily, because non-inited arrays don't exist
   //note 3 - maybe still
+
 }

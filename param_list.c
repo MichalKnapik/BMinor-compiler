@@ -31,6 +31,11 @@ int param_print_dot(param_list* l, int* global_counter) {
   }
   if (l->type != NULL) print_with_bar_unless_first(&first, "<f0> type");
   if (l->next != NULL) print_with_bar_unless_first(&first, "<f1> next");    
+  if (l->symbol != NULL && l->symbol->which >= 0) {
+    print_with_bar_unless_first(&first, "");
+    if (l->symbol->kind == SYMBOL_PARAM) printf(" param ");
+    printf("(%d)", l->symbol->which);    
+  }
 
   printf("}}\"];\n");
 

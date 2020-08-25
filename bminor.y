@@ -136,7 +136,9 @@ declaration: IDENTIFIER_T COLON_T FUNCTION_KW_T returntype LPAREN_T paramlist RP
 type: returntype
 | ARRAY_KW_T LBRACKET_T arrsize RBRACKET_T type
 {
-  $$ = type_create(TYPE_ARRAY, $5, NULL);
+  type* rval = type_create(TYPE_ARRAY, $5, NULL);
+  rval->arrsize = $3;
+  $$ = rval;  
 };
 
 returntype: CHAR_KW_T
@@ -163,7 +165,6 @@ returntype: CHAR_KW_T
 arrsize:
 {
   $$ = -1; //size of the array has not been established
-  /* not implemented - non-initialised arrays don't exist */
 }
 | INTEGER_T
 ;

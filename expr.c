@@ -92,6 +92,17 @@ int expr_print_dot(expr* s, int* global_counter) {
   }
   if (s->left != NULL) print_with_bar_unless_first(&first, "<f0> left");
   if (s->right != NULL) print_with_bar_unless_first(&first, "<f1> right");
+  if (s->symbol != NULL && s->kind == EXPR_NAME) {
+    print_with_bar_unless_first(&first, "");
+    if (s->symbol->which >= 0) {
+      if (s->symbol->kind == SYMBOL_LOCAL) printf(" stk ");
+      if (s->symbol->kind == SYMBOL_PARAM) printf(" prm ");
+      if (s->symbol->kind == SYMBOL_GLOBAL) printf(" glb ");      
+      else printf("(%d)", s->symbol->which);
+    }
+    else printf(" global ");
+
+  }
 
   printf("}}\"];\n");
 

@@ -35,7 +35,13 @@ int decl_print_dot(decl *d, int* global_counter) {
   if (d->type != NULL) print_with_bar_unless_first(&first, "<f0> type");
   if (d->value != NULL) print_with_bar_unless_first(&first, "<f1> value");
   if (d->code != NULL) print_with_bar_unless_first(&first, "<f2> code");
-  if (d->next != NULL) print_with_bar_unless_first(&first, "<f3> next");    
+  if (d->next != NULL) print_with_bar_unless_first(&first, "<f3> next");
+
+  //todo
+  if (d->symbol != NULL && d->symbol->kind == SYMBOL_LOCAL && d->symbol->which >= 0) {
+    print_with_bar_unless_first(&first, " stk ");
+    printf("(%d)", d->symbol->which);
+  }
 
   printf("}}\"];\n");
 
@@ -58,4 +64,13 @@ int decl_print_dot(decl *d, int* global_counter) {
   }
 
   return local_counter;
+}
+
+void print_dot(decl* program_root) {
+
+  int global_counter = 0;
+  printf("digraph{\nnode [shape=record];\n");
+  decl_print_dot(program_root, &global_counter);
+  printf("}\n");
+
 }
