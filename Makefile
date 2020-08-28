@@ -3,10 +3,11 @@ CCOPTS  	= -g -Wall
 BISOPTS	        = --report=all
 
 all:	scanner_and_parser semantic_tools codegen
-	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o codegen.o main.c -o bminor
+	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o pass_and_codegen.o main.c -o bminor
 
 codegen:
-	$(CC) $(CCOPTS) codegen.c -c	
+	$(CC) $(CCOPTS) stack_rbp_pass.c codegen.c -c
+	ld -r stack_rbp_pass.o codegen.o -o pass_and_codegen.o
 
 scanner_and_parser: parser.c scanner.c
 	$(CC) $(CCOPTS) parser.c scanner.c -c
@@ -34,8 +35,14 @@ clean:
 count:
 	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* parser.* scanner.* bminor.l bminor.y main.c name_resolution.* type_check.* | wc -l
 
-check:
+check 1:
 	./bminor -typecheck good.bminor > d.dot
+	sed -i -n '5,10000p' d.dot
+	dot -Tpdf d.dot -o d.pdf
+	evince d.pdf &
+
+check 2:
+	./bminor -typecheck good2.bminor > d.dot
 	sed -i -n '5,10000p' d.dot
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &

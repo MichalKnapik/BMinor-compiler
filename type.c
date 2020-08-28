@@ -9,7 +9,7 @@ type* type_create(type_t kind, type *subtype, param_list *params) {
   rval->kind = kind;
   rval->params = params;
   rval->subtype = subtype;
-  rval->arrsize = -1;
+  rval->arrsize = 1;
 
   return rval;
 }

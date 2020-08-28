@@ -7,6 +7,7 @@
 #include "name_resolution.h"
 #include "hash_table.h"
 #include "type_check.h"
+#include "stack_rbp_pass.h"
 #include "codegen.h"
 
 extern int yyparse();
@@ -74,7 +75,7 @@ int main(int argc, char** argv) {
 	scope_enter();
 	decl_resolve(program_root);
 	scope_exit();
-	mark_program_symbols_with_numbers(program_root);
+	mark_program_symbols_with_rbppos(program_root);
 	printf("Found %d error(s) in name resolution.\n", error_count);
 
 	//second pass of typechecking: assign types
