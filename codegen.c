@@ -94,7 +94,7 @@ const char* symbol_codegen(symbol* s) {
   //s->kind == SYMBOL_LOCAL
   //local fun definitions are not allowed, so this must be a local var decl/use
 
-  //TODO - rbp depth
+  //TODO - rbp string i w ogóle string
 
   //array
   if (s->type->kind == TYPE_ARRAY) {

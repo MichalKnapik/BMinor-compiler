@@ -17,7 +17,7 @@ typedef struct type {
   type_t kind;
   struct param_list *params;
   struct type *subtype;
-  int arrsize; //number of elements of an array, or 1 if non-array var
+  int arrsize; //number of elements of an array/string, or 1 if non-array/string var
 } type;
 
 type* type_create(type_t kind, type *subtype, param_list *params);

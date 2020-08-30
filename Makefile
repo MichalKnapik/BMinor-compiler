@@ -35,13 +35,13 @@ clean:
 count:
 	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* parser.* scanner.* bminor.l bminor.y main.c name_resolution.* type_check.* | wc -l
 
-check 1:
+check1:
 	./bminor -typecheck good.bminor > d.dot
 	sed -i -n '5,10000p' d.dot
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &
 
-check 2:
+check2:
 	./bminor -typecheck good2.bminor > d.dot
 	sed -i -n '5,10000p' d.dot
 	dot -Tpdf d.dot -o d.pdf
