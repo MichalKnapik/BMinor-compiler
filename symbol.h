@@ -19,11 +19,13 @@ typedef struct symbol {
   symbol_flags flags;
   type *type;
   char *name;
+
   //multi-purpose field:
   //param number in function, symbol id in names after name resolution,
   //and pointer to stack position of stack variable after stack assignment computation pass
-
+  //and number of string data label if it is a string literal (put in the string store)
   int which;
+
 } symbol;
 
 symbol* symbol_create(symbol_t kind, type *type, char *name);

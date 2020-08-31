@@ -13,6 +13,7 @@ decl* decl_create(char *name, type *type, expr *value, stmt *code, decl *next) {
   rval->code = code;
   rval->next = next;
   rval->symbol = NULL;
+  rval->rbpoffset = 0;
 
   return rval;
 }

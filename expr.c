@@ -4,6 +4,10 @@
 #include "expr.h"
 #include "scope.h"
 #include "name_resolution.h"
+#include "hash_table.h"
+
+extern struct hash_table* string_store; //this is the storage for string literals
+int str_ctr = 0;
 
 expr* expr_create(expr_t kind, struct expr *left, expr *right) {
 
@@ -54,7 +58,17 @@ expr* expr_create_char_literal(char c) {
 
 expr* expr_create_string_literal(const char *str) {
 
-  expr* rval = expr_create(EXPR_STR, NULL, NULL);  
+  expr* rval = expr_create(EXPR_STR, NULL, NULL);
+
+  if (string_store != NULL) { //collect literals in the string store
+    int* string_no = hash_table_lookup(string_store, str);
+    if (string_no == NULL) {
+      int* str_label = malloc(sizeof(int));
+      *str_label = str_ctr++;
+      hash_table_insert(string_store, str, str_label);
+    } 
+  }
+  
   rval->string_literal = str;
 
   return rval;
@@ -86,22 +100,24 @@ int expr_print_dot(expr* s, int* global_counter) {
     print_with_bar_unless_first(&first, "lvl = ");    
     printf("%d", s->literal_value);
   }
-  if (s->string_literal != NULL) {
+  if (s->kind == EXPR_STR && s->string_literal != NULL) {
     print_with_bar_unless_first(&first, "str = ");        
     printf("%s", s->string_literal);
   }
+
   if (s->left != NULL) print_with_bar_unless_first(&first, "<f0> left");
   if (s->right != NULL) print_with_bar_unless_first(&first, "<f1> right");
+
+  //printing symbols
   if (s->symbol != NULL && s->kind == EXPR_NAME) {
     print_with_bar_unless_first(&first, "");
     if (s->symbol->which >= 0) {
       if (s->symbol->kind == SYMBOL_LOCAL) printf(" stk ");
       if (s->symbol->kind == SYMBOL_PARAM) printf(" prm ");
-      if (s->symbol->kind == SYMBOL_GLOBAL) printf(" glb ");      
+      if (s->symbol->kind == SYMBOL_GLOBAL) printf(" glb ");
       else printf("(%d)", s->symbol->which);
     }
     else printf(" global ");
-
   }
 
   printf("}}\"];\n");
