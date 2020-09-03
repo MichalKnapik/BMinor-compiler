@@ -195,7 +195,7 @@ void expr_codegen(expr* e) {//todo
     //**inner nodes**
     //a convention for nasm (different than the book's gas conv.) - re-use left register
 
-    //arithmetics
+    //arithmetics and logic instructions
   case EXPR_ADD:
     expr_codegen(e->left);
     expr_codegen(e->right);    
@@ -393,6 +393,29 @@ void expr_codegen(expr* e) {//todo
     scratch_free(e->right->reg);
     break;
 
+  case EXPR_AND:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("and %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_OR:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("or %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_NEG:
+    expr_codegen(e->left);
+    printf("not %s\n", scratch_name(e->left->reg));
+    printf("and %s, 0x1\n", scratch_name(e->left->reg)); 
+    e->reg = e->left->reg;
+    break;
+
     //todo more
   }
   
@@ -425,9 +448,9 @@ void expr_codegen(expr* e) {//todo
 	EXPR_EQ, X
 	EXPR_NEQ, X
 
-	EXPR_AND,
-	EXPR_OR,
-	EXPR_NEG,
+	EXPR_AND, X
+	EXPR_OR, X
+	EXPR_NEG, X
 
         EXPR_ARR_SUBS,
         EXPR_FUN_CALL,
