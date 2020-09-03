@@ -18,7 +18,10 @@ extern struct hash_table* string_store;
 int scratch_alloc() {
 
   for (int i = 0; i < SCRATCH_S; ++i) {
-    if (inuse[i] == FREE) return i;
+    if (inuse[i] == FREE) {
+      inuse[i]= INUSE;
+      return i;
+    }
   }
 
   printf("Error (for now): out of scratch registers.\n");
@@ -62,7 +65,13 @@ const char* label_name(int label, char fletter) {
 
 const char* symbol_codegen(symbol* s) {
   
-  if (s->kind == SYMBOL_GLOBAL) return s->name;
+  if (s->kind == SYMBOL_GLOBAL) {
+    char* nlab = calloc((strlen(s->name)+3), sizeof(char));
+    nlab[0] = '[';
+    strcpy(nlab+1, s->name);
+    nlab[strlen(s->name)+1] = ']';
+    return nlab;
+  }
   
   if (s->kind == SYMBOL_PARAM) { //x86_64 calling convention
 
@@ -89,16 +98,16 @@ const char* symbol_codegen(symbol* s) {
     
     //further args go to stacks 
     int rbpoffset = (s->which - 6) * 8 + 16;
-    char* nlab = calloc((get_number_of_positions(rbpoffset)+5), sizeof(char));
-    strcpy(nlab, "rbp+");
-    sprintf(nlab+4, "%d", rbpoffset);
+    char* nlab = calloc((get_number_of_positions(rbpoffset)+7), sizeof(char));
+    strcpy(nlab, "[rbp+");
+    sprintf(nlab+4, "%d]", rbpoffset);
     return nlab;
   }
 
   //s->kind == SYMBOL_LOCAL
-  char* nlab = calloc((get_number_of_positions(s->which)+5), sizeof(char));
-  strcpy(nlab, "rbp-");
-  sprintf(nlab+4, "%d", s->which);
+  char* nlab = calloc((get_number_of_positions(s->which)+7), sizeof(char));
+  strcpy(nlab, "[rbp-");
+  sprintf(nlab+4, "%d]", s->which);
   return nlab;  
 
 }
@@ -154,3 +163,275 @@ void function_epilogue_codegen(decl* d) {
   printf("\tret\n");  
   
 }
+
+void expr_codegen(expr* e) {//todo
+
+  //This is a non-optimised, somewhat RISC-y codegen routine for X86_64.
+
+  if (e == NULL) return;
+
+  switch (e->kind) {
+
+    //**leaf nodes**
+  case EXPR_STR:
+    //load reference to a string literal from the string store
+    e->reg = scratch_alloc();
+    printf("mov %s, %s\n", scratch_name(e->reg), string_literal_codegen(e->string_literal));
+    break;
+
+  case EXPR_INT:
+  case EXPR_BOOL:
+  case EXPR_CHAR:
+    //load immediates - non-optimised
+    e->reg = scratch_alloc();
+    printf("mov %s, %d\n", scratch_name(e->reg), e->literal_value);
+    break;
+
+  case EXPR_NAME:
+    e->reg = scratch_alloc();
+    printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+    break;
+  
+    //**inner nodes**
+    //a convention for nasm (different than the book's gas conv.) - re-use left register
+
+    //arithmetics
+  case EXPR_ADD:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_SUB:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("sub %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_MUL:
+    //need to save rdx and rax
+    //128-bit results not handled, all truncated to 64-bit
+    expr_codegen(e->left);
+    expr_codegen(e->right);
+    printf("push rdx\n");
+    printf("push rax\n");    
+    printf("imul %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    printf("pop rax\n");    
+    printf("pop rdx\n");
+    break;
+
+  case EXPR_DIV:
+    //need to save rdx and rax
+    expr_codegen(e->left);
+    expr_codegen(e->right);
+    printf("push rdx\n");
+    printf("push rax\n");    
+    printf("mov rax, %s\n", scratch_name(e->left->reg));
+    printf("cqo\n");
+    printf("idiv %s\n", scratch_name(e->right->reg));
+    printf("mov %s, rax\n", scratch_name(e->left->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    printf("pop rax\n");    
+    printf("pop rdx\n");
+    break;
+
+  case EXPR_MOD:
+    //need to save rdx and rax
+    expr_codegen(e->left);
+    expr_codegen(e->right);
+    printf("push rdx\n");
+    printf("push rax\n");    
+    printf("mov rax, %s\n", scratch_name(e->left->reg));
+    printf("cqo\n");
+    printf("idiv %s\n", scratch_name(e->right->reg));
+    printf("mov %s, rdx\n", scratch_name(e->left->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    printf("pop rax\n");    
+    printf("pop rdx\n");
+    break;
+
+  case EXPR_EXP:
+    //emit extern integer_power in src .text
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("mov rdi, %s\n", scratch_name(e->left->reg));
+    printf("mov rsi, %s\n", scratch_name(e->right->reg));
+    printf("call integer_power\n");    
+    printf("mov %s, rax\n", scratch_name(e->left->reg));
+    e->reg = e->left->reg;
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_UN_MIN: 
+    //there must be a better way...
+    printf("push rdx\n");
+    printf("push rax\n");    
+    expr_codegen(e->left);
+    printf("imul %s, -1\n", scratch_name(e->left->reg));
+    e->reg = e->left->reg;
+    printf("pop rax\n");    
+    printf("pop rdx\n");
+    break;
+
+  case EXPR_INC:
+    expr_codegen(e->left);
+    //the expression's result
+    e->reg = e->left->reg; 
+    //the side effect
+    printf("inc qword %s\n", symbol_codegen(e->left->symbol));    
+    break;
+
+  case EXPR_DEC:
+    expr_codegen(e->left);
+    //the expression's result
+    e->reg = e->left->reg; 
+    //the side effect
+    printf("dec qword %s\n", symbol_codegen(e->left->symbol));    
+    break;
+
+  case EXPR_LE:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    const char* jlabel_le = label_name(label_create(), 'L');
+    const char* jlabel_end_le = label_name(label_create(), 'L');
+    printf("jle %s\n", jlabel_le);
+    printf("mov %s, 0\n", scratch_name(e->left->reg));
+    printf("jmp %s\n", jlabel_end_le);
+    printf("%s:\n", jlabel_le); 
+    printf("mov %s, 1\n", scratch_name(e->left->reg));
+    printf("%s:\n", jlabel_end_le);
+    e->reg = e->left->reg;     
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_LT:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    const char* jlabel_lt = label_name(label_create(), 'L');
+    const char* jlabel_end_lt = label_name(label_create(), 'L');
+    printf("jl %s\n", jlabel_lt);
+    printf("mov %s, 0\n", scratch_name(e->left->reg));
+    printf("jmp %s\n", jlabel_end_lt);
+    printf("%s:\n", jlabel_lt); 
+    printf("mov %s, 1\n", scratch_name(e->left->reg));
+    printf("%s:\n", jlabel_end_lt);
+    e->reg = e->left->reg;     
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_GE:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    const char* jlabel_ge = label_name(label_create(), 'L');
+    const char* jlabel_end_ge = label_name(label_create(), 'L');
+    printf("jge %s\n", jlabel_ge);
+    printf("mov %s, 0\n", scratch_name(e->left->reg));
+    printf("jmp %s\n", jlabel_end_ge);
+    printf("%s:\n", jlabel_ge); 
+    printf("mov %s, 1\n", scratch_name(e->left->reg));
+    printf("%s:\n", jlabel_end_ge);
+    e->reg = e->left->reg;     
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_GT:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    const char* jlabel_gt = label_name(label_create(), 'L');
+    const char* jlabel_end_gt = label_name(label_create(), 'L');
+    printf("jg %s\n", jlabel_gt);
+    printf("mov %s, 0\n", scratch_name(e->left->reg));
+    printf("jmp %s\n", jlabel_end_gt);
+    printf("%s:\n", jlabel_gt); 
+    printf("mov %s, 1\n", scratch_name(e->left->reg));
+    printf("%s:\n", jlabel_end_gt);
+    e->reg = e->left->reg;     
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_EQ:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    const char* jlabel_eq = label_name(label_create(), 'L');
+    const char* jlabel_end_eq = label_name(label_create(), 'L');
+    printf("je %s\n", jlabel_eq);
+    printf("mov %s, 0\n", scratch_name(e->left->reg));
+    printf("jmp %s\n", jlabel_end_eq);
+    printf("%s:\n", jlabel_eq); 
+    printf("mov %s, 1\n", scratch_name(e->left->reg));
+    printf("%s:\n", jlabel_end_eq);
+    e->reg = e->left->reg;     
+    scratch_free(e->right->reg);
+    break;
+
+  case EXPR_NEQ:
+    expr_codegen(e->left);
+    expr_codegen(e->right);    
+    printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    const char* jlabel_neq = label_name(label_create(), 'L');
+    const char* jlabel_end_neq = label_name(label_create(), 'L');
+    printf("jne %s\n", jlabel_neq);
+    printf("mov %s, 0\n", scratch_name(e->left->reg));
+    printf("jmp %s\n", jlabel_end_neq);
+    printf("%s:\n", jlabel_neq); 
+    printf("mov %s, 1\n", scratch_name(e->left->reg));
+    printf("%s:\n", jlabel_end_neq);
+    e->reg = e->left->reg;     
+    scratch_free(e->right->reg);
+    break;
+
+    //todo more
+  }
+  
+}
+
+/*
+	EXPR_NAME, X
+
+	EXPR_STR, X
+	EXPR_INT, X
+	EXPR_CHAR, X	
+	EXPR_BOOL, X
+
+	EXPR_ADD, X	
+ 	EXPR_SUB, X
+	EXPR_MUL, X
+	EXPR_MOD, X
+	EXPR_DIV, X
+	EXPR_EXP, X
+
+	EXPR_UN_MIN, X
+	EXPR_INC, X
+	EXPR_DEC, X
+
+	EXPR_LE, X
+	EXPR_LT, X
+	EXPR_GT, X
+	EXPR_GE, X
+
+	EXPR_EQ, X
+	EXPR_NEQ, X
+
+	EXPR_AND,
+	EXPR_OR,
+	EXPR_NEG,
+
+        EXPR_ARR_SUBS,
+        EXPR_FUN_CALL,
+
+	EXPR_ASSGN,
+	EXPR_ARG
+*/

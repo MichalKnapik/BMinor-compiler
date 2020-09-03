@@ -20,6 +20,7 @@ expr* expr_create(expr_t kind, struct expr *left, expr *right) {
   rval->literal_value = 0;
   rval->string_literal = NULL;
   rval->symbol = NULL;
+  rval->reg = -1;
 
   return rval;
 }

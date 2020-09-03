@@ -33,7 +33,7 @@ clean:
 	rm -rf *~ *.yy.c *.o ltsNet *.tab.* *.dot \#* parser.h parser.c
 
 count:
-	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* parser.* scanner.* bminor.l bminor.y main.c name_resolution.* type_check.* | wc -l
+	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* bminor.l bminor.y main.c name_resolution.* stack_rbp_pass.* type_check.* codegen.* | wc -l
 
 check1:
 	./bminor -typecheck good.bminor > d.dot

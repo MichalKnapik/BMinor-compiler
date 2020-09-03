@@ -17,4 +17,6 @@ void string_store_codegen();
 void function_prologue_codegen(decl* d);
 void function_epilogue_codegen(decl* d);
 
+void expr_codegen(expr* e);
+
 #endif

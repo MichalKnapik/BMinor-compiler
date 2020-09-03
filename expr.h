@@ -54,7 +54,7 @@ typedef struct expr {
 	const char * string_literal;
 
 	symbol *symbol;
-
+       int reg;
 } expr;
 
 expr* expr_create(expr_t kind, struct expr *left, expr *right);
