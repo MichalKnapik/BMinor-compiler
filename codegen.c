@@ -531,5 +531,6 @@ void codegen_array_element_reference(expr* e) {
     printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(tempreg));
     scratch_free(tempreg);
     scratch_free(e->right->reg);
-    //e->left->reg contains the address of array element
+
+    //at the exit, e->left->reg contains the address of array element
 }
