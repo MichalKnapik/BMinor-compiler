@@ -178,7 +178,10 @@ type* expr_typecheck(expr *e) {
       printf("Error: assignment to non-variable.\n");
       ++error_count;
     } else {
-      const char* varname = e->left->name;
+      const char* varname = NULL;
+      if (e->left->kind == EXPR_ARR_SUBS) varname = e->left->left->name;
+      else varname = e->left->name;
+
       //detecting arrays in assignemnts, not pretty, should be done in AST
       if (e->right->kind == EXPR_ARG) { 
 	printf("Error: can't assign array to %s.\n", varname);

@@ -468,6 +468,13 @@ void expr_codegen(expr* e) {//todo
     }
 
     break;
+
+    case EXPR_ASSGN: {
+      //todo
+
+      break;
+    }
+      
   }
 
     //todo more
