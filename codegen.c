@@ -63,13 +63,19 @@ const char* label_name(int label, char fletter) {
   return nlab;
 }
 
-const char* symbol_codegen(symbol* s) {
+const char* symbol_codegen(symbol* s, int deref) {
   
-  if (s->kind == SYMBOL_GLOBAL) {
-    char* nlab = calloc((strlen(s->name)+3), sizeof(char));
+  char* nlab = calloc((strlen(s->name) + 10), sizeof(char));
+  int offset = 0;
+  int rbpoffset = 0;  
+  if (deref != 0) {
     nlab[0] = '[';
-    strcpy(nlab+1, s->name);
-    nlab[strlen(s->name)+1] = ']';
+    offset = 1;
+  }
+
+  if (s->kind == SYMBOL_GLOBAL) {
+    strcpy(nlab + offset, s->name);
+    if (deref != 0) nlab[strlen(nlab)] = ']';
     return nlab;
   }
   
@@ -94,22 +100,23 @@ const char* symbol_codegen(symbol* s) {
     case 5:
       return "r9";
       break;
+    default:
+      rbpoffset = (s->which - 6) * 8 + 16;
+      strcpy(nlab + offset, "rbp+");
+      sprintf(nlab + offset + 4, "%d", rbpoffset);
+      break;
     }
-    
-    //further args go to stacks 
-    int rbpoffset = (s->which - 6) * 8 + 16;
-    char* nlab = calloc((get_number_of_positions(rbpoffset)+7), sizeof(char));
-    strcpy(nlab, "[rbp+");
-    sprintf(nlab+4, "%d]", rbpoffset);
+    if (deref != 0) nlab[strlen(nlab)] = ']';
+
     return nlab;
   }
 
   //s->kind == SYMBOL_LOCAL
-  char* nlab = calloc((get_number_of_positions(s->which)+7), sizeof(char));
-  strcpy(nlab, "[rbp-");
-  sprintf(nlab+4, "%d]", s->which);
-  return nlab;  
+  strcpy(nlab + offset, "rbp-");
+  sprintf(nlab + offset + 4, "%d", s->which);
+  if (deref != 0) nlab[strlen(nlab)] = ']';  
 
+  return nlab;  
 }
 
 const char* string_literal_codegen(const char* str) {
@@ -187,18 +194,49 @@ void expr_codegen(expr* e) {//todo
     printf("mov %s, %d\n", scratch_name(e->reg), e->literal_value);
     break;
 
-  case EXPR_NAME:
+  case EXPR_NAME: {
     e->reg = scratch_alloc();
-    printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+
+    //for strings (there are no dynamic strings), only address is held at the stack and strings sit in storage
+    //this also works for arrays, where it loads the beginning address
+    if (e->symbol->type->kind == TYPE_STRING || e->symbol->type->kind == TYPE_ARRAY) {
+
+      switch (e->symbol->kind) {
+
+      case SYMBOL_LOCAL: //stack storage
+	printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));	
+	break;
+
+    case SYMBOL_GLOBAL: //copying label's address
+	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 0));
+	break;
+
+    case SYMBOL_PARAM: //string/array's address is either in a reg or [rbp+xxx]
+	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
+	break;
+      }
+
+    }
+
+    else {//the name is a non-string/array, so move the literal value to scratch reg
+      if ((e->symbol->type->kind == TYPE_BOOLEAN || e->symbol->type->kind == TYPE_CHARACTER)
+	  && e->symbol->kind != SYMBOL_PARAM) {//byte size
+	printf("movzx %s, byte %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
+      }
+      else {//quad size
+	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
+      }
+    }
+
     break;
-  
+  }
     //**inner nodes**
     //a convention for nasm (different than the book's gas conv.) - re-use left register
 
     //arithmetics and logic instructions
   case EXPR_ADD:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
@@ -206,24 +244,18 @@ void expr_codegen(expr* e) {//todo
 
   case EXPR_SUB:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("sub %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
-    break;
+     break;
 
   case EXPR_MUL:
-    //need to save rdx and rax
-    //128-bit results not handled, all truncated to 64-bit
     expr_codegen(e->left);
     expr_codegen(e->right);
-    printf("push rdx\n");
-    printf("push rax\n");    
     printf("imul %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
-    printf("pop rax\n");    
-    printf("pop rdx\n");
     break;
 
   case EXPR_DIV:
@@ -231,14 +263,14 @@ void expr_codegen(expr* e) {//todo
     expr_codegen(e->left);
     expr_codegen(e->right);
     printf("push rdx\n");
-    printf("push rax\n");    
+    printf("push rax\n");
     printf("mov rax, %s\n", scratch_name(e->left->reg));
     printf("cqo\n");
     printf("idiv %s\n", scratch_name(e->right->reg));
     printf("mov %s, rax\n", scratch_name(e->left->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
-    printf("pop rax\n");    
+    printf("pop rax\n");
     printf("pop rdx\n");
     break;
 
@@ -247,155 +279,155 @@ void expr_codegen(expr* e) {//todo
     expr_codegen(e->left);
     expr_codegen(e->right);
     printf("push rdx\n");
-    printf("push rax\n");    
+    printf("push rax\n");
     printf("mov rax, %s\n", scratch_name(e->left->reg));
     printf("cqo\n");
     printf("idiv %s\n", scratch_name(e->right->reg));
     printf("mov %s, rdx\n", scratch_name(e->left->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
-    printf("pop rax\n");    
+    printf("pop rax\n");
     printf("pop rdx\n");
     break;
 
   case EXPR_EXP:
     //emit extern integer_power in src .text
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("mov rdi, %s\n", scratch_name(e->left->reg));
     printf("mov rsi, %s\n", scratch_name(e->right->reg));
-    printf("call integer_power\n");    
+    printf("call integer_power\n");
     printf("mov %s, rax\n", scratch_name(e->left->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
-  case EXPR_UN_MIN: 
+  case EXPR_UN_MIN:
     //there must be a better way...
     printf("push rdx\n");
-    printf("push rax\n");    
+    printf("push rax\n");
     expr_codegen(e->left);
     printf("imul %s, -1\n", scratch_name(e->left->reg));
     e->reg = e->left->reg;
-    printf("pop rax\n");    
+    printf("pop rax\n");
     printf("pop rdx\n");
     break;
 
   case EXPR_INC:
     expr_codegen(e->left);
     //the expression's result
-    e->reg = e->left->reg; 
+    e->reg = e->left->reg;
     //the side effect
-    printf("inc qword %s\n", symbol_codegen(e->left->symbol));    
+    printf("inc qword %s\n", symbol_codegen(e->left->symbol, 1));
     break;
 
   case EXPR_DEC:
     expr_codegen(e->left);
     //the expression's result
-    e->reg = e->left->reg; 
+    e->reg = e->left->reg;
     //the side effect
-    printf("dec qword %s\n", symbol_codegen(e->left->symbol));    
+    printf("dec qword %s\n", symbol_codegen(e->left->symbol, 1));
     break;
 
   case EXPR_LE:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     const char* jlabel_le = label_name(label_create(), 'L');
     const char* jlabel_end_le = label_name(label_create(), 'L');
     printf("jle %s\n", jlabel_le);
     printf("mov %s, 0\n", scratch_name(e->left->reg));
     printf("jmp %s\n", jlabel_end_le);
-    printf("%s:\n", jlabel_le); 
+    printf("%s:\n", jlabel_le);
     printf("mov %s, 1\n", scratch_name(e->left->reg));
     printf("%s:\n", jlabel_end_le);
-    e->reg = e->left->reg;     
+    e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
   case EXPR_LT:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     const char* jlabel_lt = label_name(label_create(), 'L');
     const char* jlabel_end_lt = label_name(label_create(), 'L');
     printf("jl %s\n", jlabel_lt);
     printf("mov %s, 0\n", scratch_name(e->left->reg));
     printf("jmp %s\n", jlabel_end_lt);
-    printf("%s:\n", jlabel_lt); 
+    printf("%s:\n", jlabel_lt);
     printf("mov %s, 1\n", scratch_name(e->left->reg));
     printf("%s:\n", jlabel_end_lt);
-    e->reg = e->left->reg;     
+    e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
   case EXPR_GE:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     const char* jlabel_ge = label_name(label_create(), 'L');
     const char* jlabel_end_ge = label_name(label_create(), 'L');
     printf("jge %s\n", jlabel_ge);
     printf("mov %s, 0\n", scratch_name(e->left->reg));
     printf("jmp %s\n", jlabel_end_ge);
-    printf("%s:\n", jlabel_ge); 
+    printf("%s:\n", jlabel_ge);
     printf("mov %s, 1\n", scratch_name(e->left->reg));
     printf("%s:\n", jlabel_end_ge);
-    e->reg = e->left->reg;     
+    e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
   case EXPR_GT:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     const char* jlabel_gt = label_name(label_create(), 'L');
     const char* jlabel_end_gt = label_name(label_create(), 'L');
     printf("jg %s\n", jlabel_gt);
     printf("mov %s, 0\n", scratch_name(e->left->reg));
     printf("jmp %s\n", jlabel_end_gt);
-    printf("%s:\n", jlabel_gt); 
+    printf("%s:\n", jlabel_gt);
     printf("mov %s, 1\n", scratch_name(e->left->reg));
     printf("%s:\n", jlabel_end_gt);
-    e->reg = e->left->reg;     
+    e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
   case EXPR_EQ:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     const char* jlabel_eq = label_name(label_create(), 'L');
     const char* jlabel_end_eq = label_name(label_create(), 'L');
     printf("je %s\n", jlabel_eq);
     printf("mov %s, 0\n", scratch_name(e->left->reg));
     printf("jmp %s\n", jlabel_end_eq);
-    printf("%s:\n", jlabel_eq); 
+    printf("%s:\n", jlabel_eq);
     printf("mov %s, 1\n", scratch_name(e->left->reg));
     printf("%s:\n", jlabel_end_eq);
-    e->reg = e->left->reg;     
+    e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
   case EXPR_NEQ:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("cmp %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     const char* jlabel_neq = label_name(label_create(), 'L');
     const char* jlabel_end_neq = label_name(label_create(), 'L');
     printf("jne %s\n", jlabel_neq);
     printf("mov %s, 0\n", scratch_name(e->left->reg));
     printf("jmp %s\n", jlabel_end_neq);
-    printf("%s:\n", jlabel_neq); 
+    printf("%s:\n", jlabel_neq);
     printf("mov %s, 1\n", scratch_name(e->left->reg));
     printf("%s:\n", jlabel_end_neq);
-    e->reg = e->left->reg;     
+    e->reg = e->left->reg;
     scratch_free(e->right->reg);
     break;
 
   case EXPR_AND:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("and %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
@@ -403,7 +435,7 @@ void expr_codegen(expr* e) {//todo
 
   case EXPR_OR:
     expr_codegen(e->left);
-    expr_codegen(e->right);    
+    expr_codegen(e->right);
     printf("or %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
@@ -412,11 +444,34 @@ void expr_codegen(expr* e) {//todo
   case EXPR_NEG:
     expr_codegen(e->left);
     printf("not %s\n", scratch_name(e->left->reg));
-    printf("and %s, 0x1\n", scratch_name(e->left->reg)); 
+    printf("and %s, 0x1\n", scratch_name(e->left->reg));
     e->reg = e->left->reg;
     break;
 
+  case EXPR_ARG:
+    expr_codegen(e->left);
+    e->reg = e->left->reg;    
+    break;
+
+  case EXPR_ARR_SUBS: {
+
+    codegen_array_element_reference(e);
+    //e->left->reg contains the address of array element
+
+    type_t arrkind = e->left->symbol->type->subtype->kind;
+
+    //dereference the element
+    if (arrkind == TYPE_BOOLEAN || arrkind == TYPE_CHARACTER) {//byte-size element
+      printf("movzx %s, byte [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+    } else {//quad-size element
+      printf("mov %s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));    
+    }
+
+    break;
+  }
+
     //todo more
+
   }
   
 }
@@ -452,9 +507,29 @@ void expr_codegen(expr* e) {//todo
 	EXPR_OR, X
 	EXPR_NEG, X
 
-        EXPR_ARR_SUBS,
-        EXPR_FUN_CALL,
+	EXPR_ARG X
 
+        EXPR_ARR_SUBS, X
 	EXPR_ASSGN,
-	EXPR_ARG
+
+        EXPR_FUN_CALL,
 */
+
+void codegen_array_element_reference(expr* e) {
+
+    //load the address of the beginning of the array
+    expr_codegen(e->left);
+
+    //the right node is the offset
+    expr_codegen(e->right);
+
+    //compute offset
+    type* arrtype = e->left->symbol->type->subtype;
+    int offset = type_size(arrtype);
+    int tempreg = scratch_alloc();
+    printf("imul %s, %s, %d\n", scratch_name(tempreg), scratch_name(e->right->reg), offset);
+    printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(tempreg));
+    scratch_free(tempreg);
+    scratch_free(e->right->reg);
+    //e->left->reg contains the address of array element
+}

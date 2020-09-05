@@ -47,3 +47,9 @@ check2:
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &
 
+arithm:
+	./bminor -typecheck arithm.bminor > d.dot
+	sed -i -n '5,10000p' d.dot
+	dot -Tpdf d.dot -o d.pdf
+	evince d.pdf &
+

@@ -26,5 +26,7 @@ int is_basic(type* a);
 int type_equals(type *a, type *b);
 type* type_copy(type *t);
 void type_delete(type *t);
+int type_size(type *t); //in bytes
+void print_type(type* t);
 
 #endif

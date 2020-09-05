@@ -95,3 +95,24 @@ void type_delete(type *t) {
   free(t);
 }
 
+int type_size(type *t) {
+
+  if (t->kind == TYPE_BOOLEAN || t->kind == TYPE_CHARACTER) return 1;
+  if (t->kind == TYPE_VOID) return 0;
+
+  //other cases are either int or refs
+  return 8;
+}
+
+void print_type(type* t) {
+  char* tnames[] = {
+	      "TYPE_VOID",
+	      "TYPE_BOOLEAN",
+	      "TYPE_CHARACTER",
+	      "TYPE_INTEGER",
+	      "TYPE_STRING",
+	      "TYPE_ARRAY",
+	      "TYPE_FUNCTION"};
+
+    printf("%s\n", tnames[t->kind - TYPE_VOID]);
+}
