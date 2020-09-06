@@ -29,5 +29,5 @@ typedef struct symbol {
 } symbol;
 
 symbol* symbol_create(symbol_t kind, type *type, char *name);
-
+int is_param_on_stack(symbol* s);
 #endif

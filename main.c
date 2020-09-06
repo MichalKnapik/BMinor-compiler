@@ -90,12 +90,12 @@ int main(int argc, char** argv) {
 	printf("Found %d error(s) while typechecking.\n", error_count - preverrs);
 
 	//print dot
-		print_dot(program_root);
+	print_dot(program_root);
 	//generate code here
 
-	//	string_store_codegen(); //test
+	// 	string_store_codegen(); //test
 	//	printf("prologue\n");
-	//	expr_codegen(program_root->next->next->code->expr); //test
+	//	expr_codegen(program_root->code->next->next->expr); //test
 	//	printf("epilogue\n");	
 	//	function_epilogue_codegen(program_root->next->next); //test	
 	//	print_mem_pos_decl(program_root);

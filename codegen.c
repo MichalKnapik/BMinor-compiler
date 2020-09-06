@@ -11,9 +11,33 @@ typedef enum {INUSE, FREE} reg_use;
 const int SCRATCH_S = 7;
 const char* name[] = {"rbx", "r10", "r11", "r12", "r13", "r14", "r15"};
 reg_use inuse[] = {FREE, FREE, FREE, FREE, FREE, FREE, FREE};
+
+const int ARG_REGS_S = 6;
+const char* argregnames[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
 int label_counter = 0;
 
 extern struct hash_table* string_store;
+
+int regname_to_number(const char* rname) {
+
+  for (int i = 0; i < SCRATCH_S; ++i) {
+    if (!strcmp(rname, argregnames[i])) return i;
+  }
+
+  assert(0);
+  return -1;
+}
+
+const char* argreg_name(int r) {
+
+  if (r < 0 || r >= ARG_REGS_S) {
+    printf("Error: no arg register numbered %d.\n", r);
+    exit(1);
+  }
+
+  return argregnames[r];
+}
 
 int scratch_alloc() {
 
@@ -171,7 +195,7 @@ void function_epilogue_codegen(decl* d) {
   
 }
 
-void expr_codegen(expr* e) {//todo
+void expr_codegen(expr* e) { //todo
 
   //This is a non-optimised, somewhat RISC-y codegen routine for X86_64.
 
@@ -218,12 +242,12 @@ void expr_codegen(expr* e) {//todo
 
     }
 
-    else {//the name is a non-string/array, so move the literal value to scratch reg
+    else { //the name is a non-string/array, so move the literal value to scratch reg
       if ((e->symbol->type->kind == TYPE_BOOLEAN || e->symbol->type->kind == TYPE_CHARACTER)
-	  && e->symbol->kind != SYMBOL_PARAM) {//byte size
+	  && e->symbol->kind != SYMBOL_PARAM) { //byte size
 	printf("movzx %s, byte %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
       }
-      else {//quad size
+      else { //quad size
 	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
       }
     }
@@ -461,66 +485,66 @@ void expr_codegen(expr* e) {//todo
     type_t arrkind = e->left->symbol->type->subtype->kind;
 
     //dereference the element
-    if (arrkind == TYPE_BOOLEAN || arrkind == TYPE_CHARACTER) {//byte-size element
+    if (arrkind == TYPE_BOOLEAN || arrkind == TYPE_CHARACTER) { //byte-size element
       printf("movzx %s, byte [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
-    } else {//quad-size element
+    } else { //quad-size element
       printf("mov %s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));    
     }
 
     break;
-
-    case EXPR_ASSGN: {
-      //todo
-
-      break;
-    }
-      
   }
 
-    //todo more
+  case EXPR_ASSGN: {
+
+    //this case is too messy
+
+    if (e->left->kind == EXPR_ARR_SUBS) { //assignment to array's cell
+      codegen_array_element_reference(e->left);
+      expr_codegen(e->right);
+      printf("mov [%s], %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    }
+
+    else { //assignment to variable
+
+      if (e->left->symbol->kind == SYMBOL_PARAM) { //parameters need special handling
+	codegen_variable_reference(e->left);
+	expr_codegen(e->right);
+	//e->right->reg contains the data (or ref to string, because refs to arrays are forbidden)
+	if (is_param_on_stack(e->left->symbol))
+	  printf("mov [%s], %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+	else
+	  printf("mov %s, %s\n", argreg_name(e->left->reg), scratch_name(e->right->reg));	    
+
+      } else { //global or local vars
+	codegen_variable_reference(e->left);
+	expr_codegen(e->right);
+	//e->right->reg contains the data (or ref to string, because refs to arrays are forbidden)
+	printf("mov [%s], %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      }
+    }
+    //e->left->reg contains the address of array element/variable
+
+    e->reg = e->left->reg;
+    scratch_free(e->left->reg);
+    scratch_free(e->right->reg);      
+    break;
+  }
+      
+  case EXPR_FUN_CALL: {
+
+    expr* arg = e->right;
+    while (arg != NULL) {
+      expr_codegen(arg->left);
+      //todo
+      arg = arg->right;
+    }
+
+    break;
+  }
 
   }
   
 }
-
-/*
-	EXPR_NAME, X
-
-	EXPR_STR, X
-	EXPR_INT, X
-	EXPR_CHAR, X	
-	EXPR_BOOL, X
-
-	EXPR_ADD, X	
- 	EXPR_SUB, X
-	EXPR_MUL, X
-	EXPR_MOD, X
-	EXPR_DIV, X
-	EXPR_EXP, X
-
-	EXPR_UN_MIN, X
-	EXPR_INC, X
-	EXPR_DEC, X
-
-	EXPR_LE, X
-	EXPR_LT, X
-	EXPR_GT, X
-	EXPR_GE, X
-
-	EXPR_EQ, X
-	EXPR_NEQ, X
-
-	EXPR_AND, X
-	EXPR_OR, X
-	EXPR_NEG, X
-
-	EXPR_ARG X
-
-        EXPR_ARR_SUBS, X
-	EXPR_ASSGN,
-
-        EXPR_FUN_CALL,
-*/
 
 void codegen_array_element_reference(expr* e) {
 
@@ -536,8 +560,36 @@ void codegen_array_element_reference(expr* e) {
     int tempreg = scratch_alloc();
     printf("imul %s, %s, %d\n", scratch_name(tempreg), scratch_name(e->right->reg), offset);
     printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(tempreg));
+    e->reg = e->left->reg;
     scratch_free(tempreg);
     scratch_free(e->right->reg);
 
-    //at the exit, e->left->reg contains the address of array element
+    //at the exit, e->reg contains the address of array element
+}
+
+void codegen_variable_reference(expr* e) {
+
+  e->reg = scratch_alloc();
+
+  switch (e->symbol->kind) {
+
+  case SYMBOL_LOCAL: 
+    printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));	
+    break;
+
+  case SYMBOL_GLOBAL:
+    printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 0));
+    break;
+
+  case SYMBOL_PARAM:
+    if (is_param_on_stack(e->symbol)) {
+    printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
+    } else {
+      e->reg = regname_to_number(symbol_codegen(e->symbol, 0));
+    }
+    break;
+
+  }
+
+  //at the exit, e->reg contains the address of the name (var)
 }

@@ -14,3 +14,6 @@ struct symbol* symbol_create(symbol_t kind, struct type *type, char *name) {
 }
 
 
+int is_param_on_stack(symbol* s) {
+  return s->which > 5;
+}
