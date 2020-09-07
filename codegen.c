@@ -31,12 +31,15 @@ int regname_to_number(const char* rname) {
 
 const char* argreg_name(int r) {
 
-  if (r < 0 || r >= ARG_REGS_S) {
-    printf("Error: no arg register numbered %d.\n", r);
-    exit(1);
-  }
+  if (r >= 0 && r < ARG_REGS_S) return argregnames[r];
 
-  return argregnames[r];
+  int rbppos = (r - 6)*8 + 16;
+  get_number_of_positions(r);
+  char* nlab = calloc((get_number_of_positions(r) + 5), sizeof(char));    
+  strcpy(nlab, "rbp+");
+  sprintf(nlab + 4, "%d", rbppos);
+
+  return nlab;
 }
 
 int scratch_alloc() {
@@ -125,6 +128,8 @@ const char* symbol_codegen(symbol* s, int deref) {
       return "r9";
       break;
     default:
+      //then the next go to rbp+8*k
+      //(byte types too)
       rbpoffset = (s->which - 6) * 8 + 16;
       strcpy(nlab + offset, "rbp+");
       sprintf(nlab + offset + 4, "%d", rbpoffset);
@@ -533,11 +538,17 @@ void expr_codegen(expr* e) { //todo
   case EXPR_FUN_CALL: {
 
     expr* arg = e->right;
+    int i = 0;
     while (arg != NULL) {
       expr_codegen(arg->left);
-      //todo
+      if (i < 6) printf("mov %s, %s\n", argreg_name(i), scratch_name(arg->left->reg));
+      else printf("push %s\n", scratch_name(arg->left->reg));
+      scratch_free(arg->left->reg);
       arg = arg->right;
+      ++i;
     }
+    printf("call %s\n", e->left->name);
+    if (i - 6 > 0) printf("add rsp, %d\n", (i-6)*8); //clear stack post-call
 
     break;
   }
