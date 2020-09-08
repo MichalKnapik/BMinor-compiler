@@ -129,7 +129,7 @@ const char* symbol_codegen(symbol* s, int deref) {
       break;
     default:
       //then the next go to rbp+8*k
-      //(byte types too)
+      //(byte vals too)
       rbpoffset = (s->which - 6) * 8 + 16;
       strcpy(nlab + offset, "rbp+");
       sprintf(nlab + offset + 4, "%d", rbpoffset);
@@ -158,12 +158,12 @@ const char* string_literal_codegen(const char* str) {
 
 void string_store_codegen() {
 
-	char* key = NULL;
-	int* value = NULL;
-	hash_table_firstkey(string_store);
+  char* key = NULL;
+  int* value = NULL;
+  hash_table_firstkey(string_store);
 
-	while (hash_table_nextkey(string_store, &key, (void**) &value))
-	  printf("\t%s db \"%s\", 0\n", string_literal_codegen(key), key);
+  while (hash_table_nextkey(string_store, &key, (void**) &value))
+    printf("\t%s db \"%s\", 0\n", string_literal_codegen(key), key);
 }
 
 void function_prologue_codegen(decl* d) {
@@ -218,7 +218,7 @@ void expr_codegen(expr* e) { //todo
   case EXPR_INT:
   case EXPR_BOOL:
   case EXPR_CHAR:
-    //load immediates - non-optimised
+    //load immediates - non-optimised, all goes to quad-word registers
     e->reg = scratch_alloc();
     printf("mov %s, %d\n", scratch_name(e->reg), e->literal_value);
     break;
@@ -236,11 +236,11 @@ void expr_codegen(expr* e) { //todo
 	printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));	
 	break;
 
-    case SYMBOL_GLOBAL: //copying label's address
+      case SYMBOL_GLOBAL: //copying label's address
 	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 0));
 	break;
 
-    case SYMBOL_PARAM: //string/array's address is either in a reg or [rbp+xxx]
+      case SYMBOL_PARAM: //string/array's address is either in a reg or [rbp+xxx]
 	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
 	break;
       }
@@ -277,7 +277,7 @@ void expr_codegen(expr* e) { //todo
     printf("sub %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
     e->reg = e->left->reg;
     scratch_free(e->right->reg);
-     break;
+    break;
 
   case EXPR_MUL:
     expr_codegen(e->left);
@@ -559,23 +559,23 @@ void expr_codegen(expr* e) { //todo
 
 void codegen_array_element_reference(expr* e) {
 
-    //load the address of the beginning of the array
-    expr_codegen(e->left);
+  //load the address of the beginning of the array
+  expr_codegen(e->left);
 
-    //the right node is the offset
-    expr_codegen(e->right);
+  //the right node is the offset
+  expr_codegen(e->right);
 
-    //compute offset
-    type* arrtype = e->left->symbol->type->subtype;
-    int offset = type_size(arrtype);
-    int tempreg = scratch_alloc();
-    printf("imul %s, %s, %d\n", scratch_name(tempreg), scratch_name(e->right->reg), offset);
-    printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(tempreg));
-    e->reg = e->left->reg;
-    scratch_free(tempreg);
-    scratch_free(e->right->reg);
+  //compute offset
+  type* arrtype = e->left->symbol->type->subtype;
+  int offset = type_size(arrtype);
+  int tempreg = scratch_alloc();
+  printf("imul %s, %s, %d\n", scratch_name(tempreg), scratch_name(e->right->reg), offset);
+  printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(tempreg));
+  e->reg = e->left->reg;
+  scratch_free(tempreg);
+  scratch_free(e->right->reg);
 
-    //at the exit, e->reg contains the address of array element
+  //at the exit, e->reg contains the address of array element
 }
 
 void codegen_variable_reference(expr* e) {
@@ -594,7 +594,7 @@ void codegen_variable_reference(expr* e) {
 
   case SYMBOL_PARAM:
     if (is_param_on_stack(e->symbol)) {
-    printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
+      printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
     } else {
       e->reg = regname_to_number(symbol_codegen(e->symbol, 0));
     }

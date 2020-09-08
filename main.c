@@ -95,7 +95,13 @@ int main(int argc, char** argv) {
 
 	// 	string_store_codegen(); //test
 	//	printf("prologue\n");
-		expr_codegen(program_root->next->next->code->next->next->expr); //test
+	stmt* code = program_root->next->next->next->next->next->code;
+	expr_codegen(code->expr);
+	printf("\n");
+	expr_codegen(code->next->expr);
+	printf("\n");	
+	expr_codegen(code->next->next->expr);
+	printf("\n");	
 	//	printf("epilogue\n");	
 	//	function_epilogue_codegen(program_root->next->next); //test	
 	//	print_mem_pos_decl(program_root);
