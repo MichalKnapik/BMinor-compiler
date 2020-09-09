@@ -6,8 +6,8 @@ all:	scanner_and_parser semantic_tools codegen
 	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o pass_and_codegen.o main.c -o bminor
 
 codegen:
-	$(CC) $(CCOPTS) stack_rbp_pass.c codegen.c debug.c -c
-	ld -r stack_rbp_pass.o codegen.o debug.o -o pass_and_codegen.o
+	$(CC) $(CCOPTS) stack_rbp_pass.c codegen.c debug.c codegen_tools.c -c
+	ld -r stack_rbp_pass.o codegen.o codegen_tools.o debug.o -o pass_and_codegen.o
 
 scanner_and_parser: parser.c scanner.c
 	$(CC) $(CCOPTS) parser.c scanner.c -c

@@ -20,8 +20,7 @@ void function_prologue_codegen(decl* d);
 void function_epilogue_codegen(decl* d);
 
 void expr_codegen(expr* e);
-
-void codegen_array_element_reference(expr* e);
-void codegen_variable_reference(expr* e);
+void stmt_codegen(stmt* s);
+void decl_codegen(decl* d);
 
 #endif
