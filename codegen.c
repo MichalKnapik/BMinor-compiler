@@ -8,6 +8,7 @@
 #include "codegen.h"
 
 extern struct hash_table* string_store;
+static const char* curr_function_name = NULL;
 
 const char* symbol_codegen(symbol* s, int deref) {
   
@@ -495,20 +496,73 @@ void stmt_codegen(stmt* s) {
   case STMT_EXPR:
     expr_codegen(s->expr);
     scratch_free(s->expr->reg);
-    stmt_codegen(s->next);    
     break;
 
   case STMT_BLOCK:
     stmt_codegen(s->body);
     break;
 
+  case STMT_RETURN: 
+    expr_codegen(s->expr);
+    printf("mov rax, %s\n", scratch_name(s->expr->reg));
+    printf("jmp .%s_epilogue\n", curr_function_name);
+    scratch_free(s->expr->reg);
+    break;
+  
+  case STMT_IF_ELSE: {
+
+    int else_label = label_create();
+    int done_label = label_create();
+
+    expr_codegen(s->expr);
+    printf("cmp %s, 0\n", scratch_name(s->expr->reg));
+    scratch_free(s->expr->reg);
+    printf("je %s\n", label_name(else_label, 'L'));
+    stmt_codegen(s->body);
+    printf("jmp %s\n", label_name(done_label, 'L'));
+    printf("%s:\n", label_name(else_label, 'L'));    
+    stmt_codegen(s->else_body);
+    printf("%s:\n", label_name(done_label, 'L'));
+    break;
+  }
+
+  case STMT_FOR: {
+    int for_begin_label = label_create(); 
+    int for_done_label = label_create();
+
+    expr_codegen(s->init_expr); 
+    scratch_free(s->init_expr->reg);
+
+    printf("%s:\n", label_name(for_begin_label, 'L'));
+    expr_codegen(s->expr);
+    printf("cmp %s, 0\n", scratch_name(s->expr->reg));
+    scratch_free(s->expr->reg);
+    printf("je %s\n", label_name(for_done_label, 'L'));
+
+    stmt_codegen(s->body);
+    expr_codegen(s->next_expr);
+    scratch_free(s->next_expr->reg);
+
+    printf("jmp %s\n", label_name(for_begin_label, 'L'));
+    printf("%s:\n", label_name(for_done_label, 'L'));
+
+    break;
+  }
+
+  
+  //todo more cases
 
   }
+
+  stmt_codegen(s->next);    
 
 }
 
 void decl_codegen(decl* d) {
 
   //TODO
+
+  //todo - ustal curr_function_name w momencie deklaracji funkcji
+  //etykiety do wyemitowania: .curr_function_name_{prologue,epilogue}
 
 }

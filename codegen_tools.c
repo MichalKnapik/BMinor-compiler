@@ -56,7 +56,7 @@ int scratch_alloc() {
 }
 
 void scratch_free(int r) {
-
+  
   if (r < 0 || r >= SCRATCH_S) {
     printf("Error: no register numbered %d.\n", r);
     exit(1);

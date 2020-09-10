@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 
 	// 	string_store_codegen(); //test
 	//	printf("prologue\n");
-	stmt* code = program_root->next->next->next->next->next->code;
+	stmt* code = program_root->next->next->next->code;
 	stmt_codegen(code);
 	/* printf("\n"); */
 	/* expr_codegen(code->next->expr); */

@@ -8,8 +8,8 @@
 #include "param_list.h"
 
 extern int error_count;
-type* curr_function_type = NULL; //this is the currently typechecked function
-const char* curr_function_name = NULL;
+static type* curr_function_type = NULL; //this is the currently typechecked function
+static const char* curr_function_name = NULL;
 extern struct hash_table* fundecls; //this is the table with function declarations
 
 type* expr_typecheck(expr *e) {
