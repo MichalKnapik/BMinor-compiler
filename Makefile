@@ -36,19 +36,19 @@ count:
 	cat scope.* symbol.* decl.* stmt.* expr.* type.* param_list.* smalltools.* bminor.l bminor.y main.c name_resolution.* stack_rbp_pass.* type_check.* codegen.* | wc -l
 
 check1:
-	./bminor -typecheck good.bminor > d.dot
+	./bminor -dot good.bminor > d.dot
 	sed -i -n '5,10000p' d.dot
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &
 
 check2:
-	./bminor -typecheck good2.bminor > d.dot
+	./bminor -dot good2.bminor > d.dot
 	sed -i -n '5,10000p' d.dot
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &
 
 arithm:
-	./bminor -typecheck arithm.bminor > d.dot
+	./bminor -dot arithm.bminor > d.dot
 	sed -i -n '5,10000p' d.dot
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &

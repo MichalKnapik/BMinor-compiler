@@ -309,14 +309,17 @@ void stmt_typecheck(stmt *s) {
     break;
 
   case STMT_FOR:
+
     t = expr_typecheck(s->init_expr);
     type_delete(t);
+
     t = expr_typecheck(s->expr); 
-    if (t->kind != TYPE_BOOLEAN) {
+    if (t != NULL && t->kind != TYPE_BOOLEAN) {
       printf("Error: nonboolean condition in for loop.\n");
       ++error_count;
     }
     type_delete(t);    
+
     t = expr_typecheck(s->next_expr); 
     type_delete(t);
     stmt_typecheck(s->body);

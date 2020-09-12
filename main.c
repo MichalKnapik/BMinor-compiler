@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
 
   extern FILE* yyin;
   string_store = hash_table_create(0,0);
+
   fundecls = hash_table_create(0,0);
 
   if (!strcmp(argv[1], "-scan")) {
@@ -93,10 +94,8 @@ int main(int argc, char** argv) {
 	//	print_dot(program_root);
 	//generate code here
 
-	// 	string_store_codegen(); //test
-	//	printf("prologue\n");
-	stmt* code = program_root->next->next->next->code;
-	stmt_codegen(code);
+	string_store_codegen();
+	decl_codegen(program_root);
 	/* printf("\n"); */
 	/* expr_codegen(code->next->expr); */
 	/* printf("\n");	 */
@@ -107,6 +106,7 @@ int main(int argc, char** argv) {
 	//	print_mem_pos_decl(program_root);
 
 	//a bit of storage cleanup
+
 	hash_table_delete(fundecls);
 	hash_table_delete(string_store);
 	
@@ -117,6 +117,45 @@ int main(int argc, char** argv) {
       return 1;
     }    
   }
+
+  if (!strcmp(argv[1], "-dot")) {
+    if((yyin = fopen(argv[2], "r")) == NULL) {
+      perror("an issue with reading models");
+      exit(1);
+    }
+    if(!yyparse()) {
+      //todo now
+      if (program_root != NULL) {
+
+	//first pass of typechecking: resolve names and collect string literals
+	printf("Name resolution...\n");
+	make_scope();
+	scope_enter();
+	decl_resolve(program_root);
+	scope_exit();
+	mark_program_symbols_with_rbppos(program_root);
+	//mark_program_symbols_with_numbers(program_root);
+	printf("Found %d error(s) in name resolution.\n", error_count);
+
+	//second pass of typechecking: assign types
+	int preverrs = error_count;
+	printf("Typechecking...\n");
+	decl_typecheck(program_root);
+	printf("Found %d error(s) while typechecking.\n", error_count - preverrs);
+
+	//print dot
+	print_dot(program_root);
+	hash_table_delete(fundecls);
+	hash_table_delete(string_store);
+	
+      }
+      return error_count > 0;
+    } else {
+      printf("parse failed!\n");
+      return 1;
+    }    
+  }
+
   
   return 0;
 }

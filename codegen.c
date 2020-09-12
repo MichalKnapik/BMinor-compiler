@@ -29,7 +29,8 @@ const char* symbol_codegen(symbol* s, int deref) {
   if (s->kind == SYMBOL_PARAM) { //x86_64 calling convention
 
     switch (s->which) { //first six args go to registers
-      //(I might have broken X86_64 stack param. convention, but I'm consistent elsewhere.)
+      //(I have broken X86_64 ABI stack param. convention, but I'm consistent elsewhere.)
+      //fixme?
     case 0:
       return "rdi";
       break;
@@ -84,44 +85,79 @@ void string_store_codegen() {
   hash_table_firstkey(string_store);
 
   while (hash_table_nextkey(string_store, &key, (void**) &value))
-    printf("\t%s db \"%s\", 0\n", string_literal_codegen(key), key);
+    printf("%s db \"%s\", 0\n", string_literal_codegen(key), key);
 }
 
 void function_prologue_codegen(decl* d) {
 
-  printf("\tpush rbp\n");
-  printf("\tmov rbp, rsp\n");  
+  printf("push rbp\n");
+  printf("mov rbp, rsp\n");  
 
   //alloc stack space
-  printf("\tsub rsp, %d\n", d->rbpoffset);
+  printf("sub rsp, %d\n", d->rbpoffset);
 
   //non-optimised, saves all callee-saved registers
-  printf("\tpush rbx\n");
-  printf("\tpush r12\n");
-  printf("\tpush r13\n");
-  printf("\tpush r14\n");     
-  printf("\tpush r15\n");     		       
+  printf("push rbx\n");
+  printf("push r12\n");
+  printf("push r13\n");
+  printf("push r14\n");     
+  printf("push r15\n");     		       
 
 }
 
 void function_epilogue_codegen(decl* d) {
 
   //non-optimised, restores all callee-saved registers
-  printf("\tpop r15\n");     		       
-  printf("\tpop r14\n");     
-  printf("\tpop r13\n");
-  printf("\tpop r12\n");
-  printf("\tpop rbx\n");
+  printf("pop r15\n");     		       
+  printf("pop r14\n");     
+  printf("pop r13\n");
+  printf("pop r12\n");
+  printf("pop rbx\n");
 
   //de-alloc stack space
-  printf("\tmov rsp, rbp\n");
+  printf("mov rsp, rbp\n");
 
-  printf("\tpop rbp\n");
-  printf("\tret\n");  
+  printf("pop rbp\n");
+  printf("ret\n");  
   
 }
 
-void expr_codegen(expr* e) { //todo
+void caller_save_registers() {
+
+  //non-optimised, saves all caller-saved registers
+  //push the arguments
+  printf("push rdi\n");
+  printf("push rsi\n");
+  printf("push rdx\n");
+  printf("push rcx\n");
+  printf("push r8\n");
+  printf("push r9\n");
+
+  //push temps
+  printf("push r10\n");
+  printf("push r11\n");
+
+}
+
+void caller_restore_registers() {
+
+  //non-optimised, restores all caller-saved registers
+  //pop temps
+  printf("pop r11\n");
+  printf("pop r10\n");
+
+  //pop the arguments
+  printf("pop r9\n");
+  printf("pop r8\n");
+  printf("pop rcx\n");
+  printf("pop rdx\n");
+  printf("pop rsi\n");
+  printf("pop rdi\n");
+
+}
+
+
+void expr_codegen(expr* e) {
 
   //This is a non-optimised, somewhat RISC-y expression codegen routine for X86_64.
 
@@ -458,11 +494,13 @@ void expr_codegen(expr* e) { //todo
       
   case EXPR_FUN_CALL: {
 
-    //I have broken x86_64 stack param placement convention. I like it this way, so it is
-    //staying broken, at least for now.
+    //I have broken x86_64 ABI stack param placement convention. I like it this way, so it is
+    //staying broken, at least for now. (fixme?)
 
     expr* arg = e->right;
     int i = 0;
+
+    caller_save_registers();
 
     while (arg != NULL) {
       expr_codegen(arg->left);
@@ -475,6 +513,8 @@ void expr_codegen(expr* e) { //todo
 
     printf("call %s\n", e->left->name);
     if (i - 6 > 0) printf("add rsp, %d\n", (i-6)*8); //clear stack post-call
+
+    caller_restore_registers();
 
     break;
   }
@@ -505,7 +545,7 @@ void stmt_codegen(stmt* s) {
   case STMT_RETURN: 
     expr_codegen(s->expr);
     printf("mov rax, %s\n", scratch_name(s->expr->reg));
-    printf("jmp .%s_epilogue\n", curr_function_name);
+    printf("jmp %s_epilogue\n", curr_function_name);
     scratch_free(s->expr->reg);
     break;
   
@@ -530,18 +570,25 @@ void stmt_codegen(stmt* s) {
     int for_begin_label = label_create(); 
     int for_done_label = label_create();
 
-    expr_codegen(s->init_expr); 
-    scratch_free(s->init_expr->reg);
+    if (s->init_expr != NULL) {
+      expr_codegen(s->init_expr); 
+      scratch_free(s->init_expr->reg);
+    }
 
     printf("%s:\n", label_name(for_begin_label, 'L'));
-    expr_codegen(s->expr);
-    printf("cmp %s, 0\n", scratch_name(s->expr->reg));
-    scratch_free(s->expr->reg);
-    printf("je %s\n", label_name(for_done_label, 'L'));
+    if (s->expr != NULL) {
+      expr_codegen(s->expr);
+      printf("cmp %s, 0\n", scratch_name(s->expr->reg));
+      scratch_free(s->expr->reg);
+      printf("je %s\n", label_name(for_done_label, 'L'));
+    }
 
     stmt_codegen(s->body);
-    expr_codegen(s->next_expr);
-    scratch_free(s->next_expr->reg);
+
+    if (s->next_expr != NULL) {
+      expr_codegen(s->next_expr);
+      scratch_free(s->next_expr->reg);
+    }
 
     printf("jmp %s\n", label_name(for_begin_label, 'L'));
     printf("%s:\n", label_name(for_done_label, 'L'));
@@ -549,9 +596,29 @@ void stmt_codegen(stmt* s) {
     break;
   }
 
-  
-  //todo more cases
+  case STMT_PRINT:
 
+    expr_codegen(s->expr->left);
+    printf("push rdi\n");
+    printf("mov rdi, %s\n", scratch_name(s->expr->left->reg));
+
+    if (s->expr->left->kind == EXPR_STR || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_STRING)) 
+      printf("call print_string\n");
+    else
+    if (s->expr->left->kind == EXPR_INT || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_INTEGER))
+      printf("call print_integer\n");
+    else
+    if (s->expr->left->kind == EXPR_CHAR || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_CHARACTER))
+      printf("call print_character\n");
+    else
+    if (s->expr->left->kind == EXPR_BOOL || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_BOOLEAN))
+      printf("call print_boolean\n");
+    else {
+      printf("Error: currently can print only strings, chars, bools, and ints. Cowardly exiting.\n");
+      exit(1);
+    }
+    scratch_free(s->expr->left->reg);
+    printf("pop rdi\n");    
   }
 
   stmt_codegen(s->next);    
@@ -560,9 +627,70 @@ void stmt_codegen(stmt* s) {
 
 void decl_codegen(decl* d) {
 
+  if (d == NULL) return;
+
+  switch (d->symbol->kind) {
+
+  case SYMBOL_GLOBAL:
+    //todo - check me
+
+    //yasm (not sure if nasm too) can take fragmented
+    //data sections; when rewriting consolidate this
+
+    if (d->type->kind == TYPE_FUNCTION) {
+
+      printf("section .text\n");
+      curr_function_name = d->name;
+      printf("global %s\n", d->name);
+      printf("%s:\n", d->name);      
+      function_prologue_codegen(d);
+      stmt_codegen(d->code);
+      printf("%s_epilogue:\n", d->name);
+      function_epilogue_codegen(d);      
+
+    } else { 
+
+      printf("section .data\n");
+
+      int is_error = 0;
+      switch (d->type->kind) {
+
+      case TYPE_INTEGER:
+	if (d->value->kind != EXPR_INT) {is_error = 1; break;}
+	printf("%s dq %d\n", d->name, d->value->literal_value);
+	break;
+      case TYPE_BOOLEAN:
+	if (d->value->kind != EXPR_BOOL) {is_error = 1; break;}
+	printf("%s db %d\n", d->name, d->value->literal_value);
+	break;
+      case TYPE_CHARACTER:
+	if (d->value->kind != EXPR_CHAR) {is_error = 1; break;}
+	printf("%s db %d\n", d->name, d->value->literal_value);
+	break;
+      case TYPE_STRING:
+	//omitted, because we use string store - todo!
+	break;
+      default:
+	;
+	//	assert(0);
+      }
+
+      if (is_error) {
+	  printf("Error: currently can init globals only with static vals. Cowardly exiting.\n");
+	  exit(1);
+      }
+			     
+    }
+    break;
+
+  case SYMBOL_LOCAL:
+
+    break;
+  default:
+
+    break;
+  }
   //TODO
 
-  //todo - ustal curr_function_name w momencie deklaracji funkcji
-  //etykiety do wyemitowania: .curr_function_name_{prologue,epilogue}
-
+    decl_codegen(d->next);
 }

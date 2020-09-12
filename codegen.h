@@ -18,6 +18,8 @@ void string_store_codegen();
 
 void function_prologue_codegen(decl* d);
 void function_epilogue_codegen(decl* d);
+void caller_save_registers();
+void caller_restore_registers();
 
 void expr_codegen(expr* e);
 void stmt_codegen(stmt* s);

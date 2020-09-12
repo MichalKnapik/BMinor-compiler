@@ -3,8 +3,6 @@
 #include "stack_rbp_pass.h"
 #include "name_resolution.h"
 
-extern struct hash_table* string_store; //these are all the string literals
-
 void fix_string_sizes_decl(decl* d) {
 
   if (d == NULL) return;

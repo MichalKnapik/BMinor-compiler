@@ -15,8 +15,6 @@ const char* argregnames[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 int label_counter = 0;
 
-extern struct hash_table* string_store;
-
 int regname_to_number(const char* rname) {
 
   for (int i = 0; i < SCRATCH_S; ++i) {
@@ -56,8 +54,10 @@ int scratch_alloc() {
 }
 
 void scratch_free(int r) {
-  
-  if (r < 0 || r >= SCRATCH_S) {
+
+  if (r == -1) return;
+
+  if (r < -1 || r >= SCRATCH_S) {
     printf("Error: no register numbered %d.\n", r);
     exit(1);
   }
