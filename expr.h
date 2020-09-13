@@ -63,6 +63,11 @@ expr* expr_create_integer_literal(int c);
 expr* expr_create_boolean_literal(int c);
 expr* expr_create_char_literal(char c);
 expr* expr_create_string_literal(const char *str);
-int expr_print_dot(expr* s, int* global_counter);
+int expr_print_dot(expr* e, int* global_counter);
+
+int is_expr_int(expr* e);
+int is_expr_bool(expr* e);
+int is_expr_char(expr* e);
+int is_expr_string(expr* e);
 
 #endif

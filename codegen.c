@@ -598,26 +598,30 @@ void stmt_codegen(stmt* s) {
 
   case STMT_PRINT:
 
+    //todo - multiple print args
+    
     expr_codegen(s->expr->left);
     printf("push rdi\n");
     printf("mov rdi, %s\n", scratch_name(s->expr->left->reg));
 
-    if (s->expr->left->kind == EXPR_STR || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_STRING)) 
+    expr* val = s->expr->left;
+
+    if (is_expr_string(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_STRING)) 
       printf("call print_string\n");
     else
-    if (s->expr->left->kind == EXPR_INT || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_INTEGER))
+      if (is_expr_int(val)  || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_INTEGER))
       printf("call print_integer\n");
     else
-    if (s->expr->left->kind == EXPR_CHAR || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_CHARACTER))
+      if (is_expr_char(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_CHARACTER))
       printf("call print_character\n");
     else
-    if (s->expr->left->kind == EXPR_BOOL || (s->expr->left->kind == EXPR_NAME && s->expr->left->symbol->type->kind == TYPE_BOOLEAN))
+      if (is_expr_bool(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_BOOLEAN))
       printf("call print_boolean\n");
     else {
       printf("Error: currently can print only strings, chars, bools, and ints. Cowardly exiting.\n");
       exit(1);
     }
-    scratch_free(s->expr->left->reg);
+    scratch_free(val->reg);
     printf("pop rdi\n");    
   }
 
@@ -632,7 +636,6 @@ void decl_codegen(decl* d) {
   switch (d->symbol->kind) {
 
   case SYMBOL_GLOBAL:
-    //todo - check me
 
     //yasm (not sure if nasm too) can take fragmented
     //data sections; when rewriting consolidate this
@@ -668,11 +671,16 @@ void decl_codegen(decl* d) {
 	printf("%s db %d\n", d->name, d->value->literal_value);
 	break;
       case TYPE_STRING:
-	//omitted, because we use string store - todo!
+	if (d->value->kind != EXPR_STR) {is_error = 1; break;}
+	//this is wasteful, because we already have string store
+	//(but you could make it into a feature by saying that global
+	//strings can be made mutable, etc.)
+	printf("%s db \"%s\",0\n", d->name, d->value->string_literal);
 	break;
       default:
 	;
-	//	assert(0);
+	//todo - other prints
+	//assert(0);
       }
 
       if (is_error) {
@@ -684,7 +692,7 @@ void decl_codegen(decl* d) {
     break;
 
   case SYMBOL_LOCAL:
-
+    //todo
     break;
   default:
 
