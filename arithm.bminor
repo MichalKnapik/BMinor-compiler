@@ -1,0 +1,24 @@
+// test functions declerations
+d:char = 'a';
+s:string = "mienolka";
+x:integer = 3;
+y:integer = 5;
+z:integer = 125;
+a:boolean = true;
+b:boolean = true;
+
+halux:function integer (
+	       x:integer, y:boolean,
+	       z:integer, v:boolean,
+	       a:integer, p:boolean,
+	       d:integer, pi:boolean) =
+{
+	d;
+	s;
+}
+
+test:function void ()=
+{
+	halux(1, a, 2, a, 3, a, 4, a);
+}
+

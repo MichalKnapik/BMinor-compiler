@@ -1,0 +1,20 @@
+y:array [5] array [5] integer;
+t:string = "cik";
+main:function void (z:integer) =
+{
+x:array [5] integer = {1,2,3,4,5};
+
+	y[1] = x;
+	count:integer;
+	murwa:string = "a";
+	kaka:char = 'a';
+	cipa:array [10] string;
+
+	for(count = 0; count < 5; count++)
+	{
+		y[count] = x;
+		turwa:string = "wioha";		
+	}
+	z++;
+}
+
