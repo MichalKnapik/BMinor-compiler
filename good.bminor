@@ -1,5 +1,6 @@
 // test functions declarations
 m:integer = 12;
+
 result:integer = 0;
 
 main:function char () =
@@ -7,10 +8,9 @@ main:function char () =
 
 	for (m = 1; m < 10; m++) {
 		result = result + m;
-		print result;
 		if (m %2 == 0) {
-		print m;
-		print "is even";
+		print m, " is even \n";
 		}
 	}
+	print result, "\nbye.\n!";
 }

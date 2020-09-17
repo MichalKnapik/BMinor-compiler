@@ -7,6 +7,8 @@
 #include "codegen_tools.h"
 #include "codegen.h"
 
+#define YASM
+
 extern struct hash_table* string_store;
 static const char* curr_function_name = NULL;
 
@@ -84,8 +86,15 @@ void string_store_codegen() {
   int* value = NULL;
   hash_table_firstkey(string_store);
 
+  //note - inconvenience: nasm wants backticks in strings for escape chars
+  //but yasm doesn't like it
   while (hash_table_nextkey(string_store, &key, (void**) &value))
+    #ifdef YASM
     printf("%s db \"%s\", 0\n", string_literal_codegen(key), key);
+    #else
+    //nasm
+    printf("%s db `%s`, 0\n", string_literal_codegen(key), key);  
+    #endif
 }
 
 void function_prologue_codegen(decl* d) {
@@ -596,33 +605,39 @@ void stmt_codegen(stmt* s) {
     break;
   }
 
-  case STMT_PRINT:
+  case STMT_PRINT: {
 
-    //todo - multiple print args
-    
-    expr_codegen(s->expr->left);
-    printf("push rdi\n");
-    printf("mov rdi, %s\n", scratch_name(s->expr->left->reg));
+    expr* print_expr = s->expr;
+    while (print_expr != NULL) {
 
-    expr* val = s->expr->left;
+      expr* val = print_expr->left;
 
-    if (is_expr_string(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_STRING)) 
-      printf("call print_string\n");
-    else
-      if (is_expr_int(val)  || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_INTEGER))
-      printf("call print_integer\n");
-    else
-      if (is_expr_char(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_CHARACTER))
-      printf("call print_character\n");
-    else
-      if (is_expr_bool(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_BOOLEAN))
-      printf("call print_boolean\n");
-    else {
-      printf("Error: currently can print only strings, chars, bools, and ints. Cowardly exiting.\n");
-      exit(1);
+      expr_codegen(val);
+      printf("push rdi\n");
+      printf("mov rdi, %s\n", scratch_name(s->expr->left->reg));
+
+
+      if (is_expr_string(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_STRING)) 
+	printf("call print_string\n");
+      else
+	if (is_expr_int(val)  || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_INTEGER))
+	  printf("call print_integer\n");
+	else
+	  if (is_expr_char(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_CHARACTER))
+	    printf("call print_character\n");
+	  else
+	    if (is_expr_bool(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_BOOLEAN))
+	      printf("call print_boolean\n");
+	    else {
+	      printf("Error: currently can print only strings, chars, bools, and ints. Cowardly exiting.\n");
+	      exit(1);
+	    }
+      scratch_free(val->reg);
+      printf("pop rdi\n");
+      print_expr = print_expr->right;
     }
-    scratch_free(val->reg);
-    printf("pop rdi\n");    
+  }
+
   }
 
   stmt_codegen(s->next);    
@@ -640,7 +655,7 @@ void decl_codegen(decl* d) {
     //yasm (not sure if nasm too) can take fragmented
     //data sections; when rewriting consolidate this
 
-    if (d->type->kind == TYPE_FUNCTION) {
+    if (d->type->kind == TYPE_FUNCTION) { //fun decls
 
       printf("section .text\n");
       curr_function_name = d->name;
@@ -651,7 +666,7 @@ void decl_codegen(decl* d) {
       printf("%s_epilogue:\n", d->name);
       function_epilogue_codegen(d);      
 
-    } else { 
+    } else { //global variable decls
 
       printf("section .data\n");
 
@@ -684,8 +699,8 @@ void decl_codegen(decl* d) {
       }
 
       if (is_error) {
-	  printf("Error: currently can init globals only with static vals. Cowardly exiting.\n");
-	  exit(1);
+	printf("Error: currently can init globals only with static vals. Cowardly exiting.\n");
+	exit(1);
       }
 			     
     }
@@ -700,5 +715,5 @@ void decl_codegen(decl* d) {
   }
   //TODO
 
-    decl_codegen(d->next);
+  decl_codegen(d->next);
 }
