@@ -14,3 +14,12 @@ unsigned int get_number_of_positions(unsigned int no) {
 
   return ctr;
 }
+
+void print_comma_unless_first_entry(int* entrycount) {
+  
+  if (*entrycount == 0) {
+    (*entrycount)++;
+  } else printf(",");
+  
+
+}

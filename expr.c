@@ -138,24 +138,26 @@ int expr_print_dot(expr* s, int* global_counter) {
 
 int is_expr_int(expr* e) {
 
-  if (e->kind == EXPR_INT || e->kind == EXPR_EXP || e->kind == EXPR_MUL || e->kind == EXPR_DIV ||
+  return (e->kind == EXPR_INT || e->kind == EXPR_EXP || e->kind == EXPR_MUL || e->kind == EXPR_DIV ||
       e->kind == EXPR_MOD || e->kind == EXPR_ADD || e->kind == EXPR_SUB || e->kind == EXPR_UN_MIN ||
-      e->kind == EXPR_INC || e->kind == EXPR_DEC || (e->kind == EXPR_ASSGN && is_expr_int(e->right))) return 1;
-
-  return 0;
+      e->kind == EXPR_INC || e->kind == EXPR_DEC || (e->kind == EXPR_ASSGN && is_expr_int(e->right)) ||
+      (e->kind == EXPR_ARR_SUBS && (e->left->symbol->type->subtype->kind == TYPE_INTEGER)));
 }
 
 int is_expr_bool(expr* e) {
   return (e->kind == EXPR_BOOL || e->kind == EXPR_LE || e->kind == EXPR_LT || e->kind == EXPR_GT ||
 	  e->kind == EXPR_GE || e->kind == EXPR_EQ || e->kind == EXPR_NEQ || e->kind == EXPR_AND ||
-	  e->kind == EXPR_OR || e->kind == EXPR_NEG || (e->kind == EXPR_ASSGN && is_expr_bool(e->right)));
+	  e->kind == EXPR_OR || e->kind == EXPR_NEG || (e->kind == EXPR_ASSGN && is_expr_bool(e->right)) ||
+	  (e->kind == EXPR_ARR_SUBS && (e->left->symbol->type->subtype->kind == TYPE_BOOLEAN)));
 }
 
 int is_expr_char(expr* e) {
-  return (e->kind == EXPR_CHAR || (e->kind == EXPR_ASSGN && is_expr_char(e->right)));
+  return (e->kind == EXPR_CHAR || (e->kind == EXPR_ASSGN && is_expr_char(e->right)) ||
+	  (e->kind == EXPR_ARR_SUBS && (e->left->symbol->type->subtype->kind == TYPE_CHARACTER)));
 }
 
 int is_expr_string(expr* e) {
-  return (e->kind == EXPR_STR || (e->kind == EXPR_ASSGN && is_expr_string(e->right)));
+  return (e->kind == EXPR_STR || (e->kind == EXPR_ASSGN && is_expr_string(e->right)) ||
+	  (e->kind == EXPR_ARR_SUBS && (e->left->symbol->type->subtype->kind == TYPE_STRING)));
 }
 

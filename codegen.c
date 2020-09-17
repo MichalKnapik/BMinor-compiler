@@ -7,6 +7,7 @@
 #include "codegen_tools.h"
 #include "codegen.h"
 
+//comment the below definition, is you use nasm and its backtick escape codes
 #define YASM
 
 extern struct hash_table* string_store;
@@ -692,9 +693,33 @@ void decl_codegen(decl* d) {
 	//strings can be made mutable, etc.)
 	printf("%s db \"%s\",0\n", d->name, d->value->string_literal);
 	break;
+      case TYPE_ARRAY: {
+
+	if (d->type->subtype->kind == TYPE_INTEGER) {
+
+	  expr* elt = d->value;
+
+	  printf("%s dq ", d->name);
+	  int fst = 0;
+	  while (elt != NULL) { //only literal inits
+	    if (elt->left->kind != EXPR_INT) {
+	      printf("Error: currently can init arrays with only literal strings, chars, bools, and ints. Cowardly exiting.\n");
+	      exit(1);	      
+	    }
+	    print_comma_unless_first_entry(&fst);
+	    printf("%d", elt->left->literal_value);
+	    elt = elt->right;
+	  }
+	  printf("\n");
+	  //todo now
+
+	}
+
+	break;
+      }
       default:
 	;
-	//todo - other prints
+	//todo - other decls
 	//assert(0);
       }
 
