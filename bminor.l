@@ -105,7 +105,7 @@ CHAR (\'([\x00-\x5B]|[\x5D-\x7F])\')|(\'\\[\x00-\x7F]\')
                           return STRING_T;
                          }
 {CHAR}                   {
-                          yylval.charval = *yytext;
+                          yylval.charval = *(yytext + 1);
                           return CHAR_T;
                          }
 

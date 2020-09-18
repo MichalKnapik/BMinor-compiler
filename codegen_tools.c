@@ -162,13 +162,15 @@ void print_global_array_elts(decl* d) {
 
   expr* elt = d->value;
 
-  printf("%s dq ", d->name);
+  if (kind == TYPE_CHARACTER || kind == TYPE_BOOLEAN) printf("%s db ", d->name);
+  else printf("%s dq ", d->name);
+
   int fst = 0;
   while (elt != NULL) { 
 
     print_comma_unless_first_entry(&fst);
     if (kind == TYPE_INTEGER || kind == TYPE_BOOLEAN) printf("%d", elt->left->literal_value);
-    else if (kind == TYPE_CHARACTER) printf("%c", (char) elt->left->literal_value);
+    else if (kind == TYPE_CHARACTER) printf("'%c'", (char) elt->left->literal_value);
     else if (kind == TYPE_STRING) {
 
       //linear search in string store...

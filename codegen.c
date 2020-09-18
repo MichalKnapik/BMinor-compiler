@@ -702,13 +702,12 @@ void decl_codegen(decl* d) {
     break;
 
   case SYMBOL_LOCAL:
-    //todo
+    //TODO
     break;
   default:
 
     break;
   }
-  //TODO
 
   decl_codegen(d->next);
 }

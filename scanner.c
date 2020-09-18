@@ -1980,7 +1980,7 @@ case 54:
 YY_RULE_SETUP
 #line 107 "bminor.l"
 {
-                          yylval.charval = *yytext;
+                          yylval.charval = *(yytext + 1);
                           return CHAR_T;
                          }
 	YY_BREAK
