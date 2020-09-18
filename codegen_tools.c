@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "decl.h"
 #include "codegen.h"
 #include "smalltools.h"
 #include "codegen_tools.h"
+
+extern struct hash_table* string_store;
 
 const int SCRATCH_S = 7;
 const char* name[] = {"rbx", "r10", "r11", "r12", "r13", "r14", "r15"};
@@ -147,4 +150,40 @@ int count_args(expr* e) {
   }
   
   return i;
+}
+
+void print_global_array_elts(decl* d) {
+  
+  type_t kind = d->type->subtype->kind;
+  if (kind != TYPE_INTEGER && kind != TYPE_CHARACTER && kind != TYPE_STRING && kind != TYPE_BOOLEAN) {
+    printf("Error: currently can init arrays with only literal strings, chars, bools, and ints. Cowardly exiting.\n");
+    exit(1);	      
+  }
+
+  expr* elt = d->value;
+
+  printf("%s dq ", d->name);
+  int fst = 0;
+  while (elt != NULL) { 
+
+    print_comma_unless_first_entry(&fst);
+    if (kind == TYPE_INTEGER || kind == TYPE_BOOLEAN) printf("%d", elt->left->literal_value);
+    else if (kind == TYPE_CHARACTER) printf("%c", (char) elt->left->literal_value);
+    else if (kind == TYPE_STRING) {
+
+      //linear search in string store...
+      char* key = NULL;
+      int* value = NULL;
+      hash_table_firstkey(string_store);
+
+      while (hash_table_nextkey(string_store, &key, (void**) &value)) {
+	if (!strcmp(key, elt->left->string_literal))
+	printf("%s", string_literal_codegen(key));  
+      }
+
+    }
+    elt = elt->right;
+  }
+  printf("\n");
+
 }

@@ -7,9 +7,6 @@
 #include "codegen_tools.h"
 #include "codegen.h"
 
-//comment the below definition, is you use nasm and its backtick escape codes
-#define YASM
-
 extern struct hash_table* string_store;
 static const char* curr_function_name = NULL;
 
@@ -87,15 +84,8 @@ void string_store_codegen() {
   int* value = NULL;
   hash_table_firstkey(string_store);
 
-  //note - inconvenience: nasm wants backticks in strings for escape chars
-  //but yasm doesn't like it
   while (hash_table_nextkey(string_store, &key, (void**) &value))
-    #ifdef YASM
-    printf("%s db \"%s\", 0\n", string_literal_codegen(key), key);
-    #else
-    //nasm
     printf("%s db `%s`, 0\n", string_literal_codegen(key), key);  
-    #endif
 }
 
 void function_prologue_codegen(decl* d) {
@@ -653,7 +643,7 @@ void decl_codegen(decl* d) {
 
   case SYMBOL_GLOBAL:
 
-    //yasm (not sure if nasm too) can take fragmented
+    //nasm/yasm can take fragmented
     //data sections; when rewriting consolidate this
 
     if (d->type->kind == TYPE_FUNCTION) { //fun decls
@@ -694,33 +684,13 @@ void decl_codegen(decl* d) {
 	printf("%s db \"%s\",0\n", d->name, d->value->string_literal);
 	break;
       case TYPE_ARRAY: {
-
-	if (d->type->subtype->kind == TYPE_INTEGER) {
-
-	  expr* elt = d->value;
-
-	  printf("%s dq ", d->name);
-	  int fst = 0;
-	  while (elt != NULL) { //only literal inits
-	    if (elt->left->kind != EXPR_INT) {
-	      printf("Error: currently can init arrays with only literal strings, chars, bools, and ints. Cowardly exiting.\n");
-	      exit(1);	      
-	    }
-	    print_comma_unless_first_entry(&fst);
-	    printf("%d", elt->left->literal_value);
-	    elt = elt->right;
-	  }
-	  printf("\n");
-	  //todo now
-
-	}
-
+	//needs to be called after string_store_codegen
+	print_global_array_elts(d);
 	break;
       }
       default:
-	;
-	//todo - other decls
-	//assert(0);
+	printf("Error: disallowed declaration, exiting.\n");
+	exit(1);
       }
 
       if (is_error) {

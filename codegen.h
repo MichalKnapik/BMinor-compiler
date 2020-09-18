@@ -3,6 +3,7 @@
 
 #include "symbol.h"
 #include "decl.h"
+#define YASM
 
 int scratch_alloc();
 void scratch_free(int r);

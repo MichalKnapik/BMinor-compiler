@@ -2,6 +2,7 @@
 #define CODEGEN_TOOLS_H
 
 #include "hash_table.h"
+#include "decl.h"
 #include "expr.h"
 
 typedef enum {INUSE, FREE} reg_use;
@@ -16,5 +17,6 @@ const char* label_name(int label, char fletter);
 void codegen_array_element_reference(expr* e);
 void codegen_variable_reference(expr* e);
 int count_args(expr* e);
+void print_global_array_elts(decl* d);
 
 #endif
