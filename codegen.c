@@ -604,7 +604,7 @@ void stmt_codegen(stmt* s) {
       expr* val = print_expr->left;
 
       expr_codegen(val);
-      printf("push rdi\n");
+      caller_save_registers();
       printf("mov rdi, %s\n", scratch_name(s->expr->left->reg));
 
 
@@ -624,7 +624,7 @@ void stmt_codegen(stmt* s) {
 	      exit(1);
 	    }
       scratch_free(val->reg);
-      printf("pop rdi\n");
+      caller_restore_registers();
       print_expr = print_expr->right;
     }
   }
@@ -704,6 +704,7 @@ void decl_codegen(decl* d) {
   case SYMBOL_LOCAL:
     //TODO
     break;
+
   default:
 
     break;

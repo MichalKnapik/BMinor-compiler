@@ -38,7 +38,6 @@ int decl_print_dot(decl *d, int* global_counter) {
   if (d->code != NULL) print_with_bar_unless_first(&first, "<f2> code");
   if (d->next != NULL) print_with_bar_unless_first(&first, "<f3> next");
 
-  //todo
   if (d->symbol != NULL && d->symbol->kind == SYMBOL_LOCAL && d->symbol->which >= 0) {
     print_with_bar_unless_first(&first, " stk ");
     printf("(%d)", d->symbol->which);
