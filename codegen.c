@@ -14,7 +14,6 @@ const char* symbol_codegen(symbol* s, int deref) {
   
   char* nlab = calloc((strlen(s->name) + 10), sizeof(char));
   int offset = 0;
-  int rbpoffset = 0;  
   if (deref != 0) {
     nlab[0] = '[';
     offset = 1;
@@ -27,38 +26,8 @@ const char* symbol_codegen(symbol* s, int deref) {
   }
   
   if (s->kind == SYMBOL_PARAM) { //x86_64 calling convention
-
-    switch (s->which) { //first six args go to registers
-      //(I have broken X86_64 ABI stack param. convention, but I'm consistent elsewhere.)
-      //fixme?
-    case 0:
-      return "rdi";
-      break;
-    case 1:
-      return "rsi";
-      break;
-    case 2:
-      return "rdx";
-      break;
-    case 3:
-      return "rcx";
-      break;
-    case 4:
-      return "r8";
-      break;
-    case 5:
-      return "r9";
-      break;
-    default:
-      //then the next go to rbp+8*k
-      //(byte vals too)
-      rbpoffset = (s->which - 6) * 8 + 16;
-      strcpy(nlab + offset, "rbp+");
-      sprintf(nlab + offset + 4, "%d", rbpoffset);
-      break;
-    }
+    strcpy(nlab + offset, argreg_name(s->which));    
     if (deref != 0) nlab[strlen(nlab)] = ']';
-
     return nlab;
   }
 
