@@ -26,4 +26,6 @@ void expr_codegen(expr* e);
 void stmt_codegen(stmt* s);
 void decl_codegen(decl* d);
 
+void codegen_stack_fun_call_args(expr* arg);
+
 #endif

@@ -15,6 +15,6 @@ main:function void ()=
 	    else print m, " is odd\n";
 	}
 
-	print "result = \n", result, "\n bye!\n";
+	print "result = ", result, "\nBye!\n";
 }
 

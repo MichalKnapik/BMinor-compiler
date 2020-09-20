@@ -26,6 +26,7 @@ const char* symbol_codegen(symbol* s, int deref) {
   }
   
   if (s->kind == SYMBOL_PARAM) { //x86_64 calling convention
+    if (s->which < 6) return argreg_name(s->which); //arg regs are not deref'd
     strcpy(nlab + offset, argreg_name(s->which));    
     if (deref != 0) nlab[strlen(nlab)] = ']';
     return nlab;
@@ -463,22 +464,20 @@ void expr_codegen(expr* e) {
       
   case EXPR_FUN_CALL: {
 
-    //I have broken x86_64 ABI stack param placement convention. I like it this way, so it is
-    //staying broken, at least for now. (fixme?)
-
     expr* arg = e->right;
     int i = 0;
 
     caller_save_registers();
 
-    while (arg != NULL) {
+    while (arg != NULL && i < 6) {
       expr_codegen(arg->left);
-      if (i < 6) printf("mov %s, %s\n", argreg_name(i), scratch_name(arg->left->reg));
-      else printf("push %s\n", scratch_name(arg->left->reg));
+      printf("mov %s, %s\n", argreg_name(i), scratch_name(arg->left->reg));
       scratch_free(arg->left->reg);
       arg = arg->right;
       ++i;
     }
+
+    codegen_stack_fun_call_args(arg);
 
     printf("call %s\n", e->left->name);
     if (i - 6 > 0) printf("add rsp, %d\n", (i-6)*8); //clear stack post-call
@@ -680,4 +679,16 @@ void decl_codegen(decl* d) {
   }
 
   decl_codegen(d->next);
+}
+
+void codegen_stack_fun_call_args(expr* arg) {
+
+  //using compiler's stack instead of using own
+  if (arg == NULL) return;
+  codegen_stack_fun_call_args(arg->right);
+
+  expr_codegen(arg->left);
+  printf("push %s\n", scratch_name(arg->left->reg));
+  scratch_free(arg->left->reg);
+
 }
