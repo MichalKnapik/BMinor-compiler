@@ -53,3 +53,8 @@ arithm:
 	dot -Tpdf d.dot -o d.pdf
 	evince d.pdf &
 
+lvars:
+	./bminor -dot localvars.bminor > d.dot
+	sed -i -n '5,10000p' d.dot
+	dot -Tpdf d.dot -o d.pdf
+	evince d.pdf &

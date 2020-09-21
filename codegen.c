@@ -676,19 +676,23 @@ void decl_codegen(decl* d) {
     }
     break;
 
-  case SYMBOL_LOCAL:
+  case SYMBOL_LOCAL: {
     //todo now - init local vars
     //no local fun decls, only vars
-    printf("section .text\n");
+    expr* initex = d->value;
     switch (d->type->kind) {
 
-    case TYPE_INTEGER:
-      /* if (d->value->kind != EXPR_INT) {is_error = 1; break;} */
-      /* printf("%s dq %d\n", d->name, d->value->literal_value); */
+    case TYPE_INTEGER: {
+      expr_codegen(initex);
+      printf("mov %s, %s\n", symbol_codegen(d->symbol, 1), scratch_name(initex->reg));
+      scratch_free(initex->reg);      
       break;
+    }
     case TYPE_BOOLEAN:
-      break;
     case TYPE_CHARACTER:
+      expr_codegen(initex);
+      printf("mov %s, %s\n", symbol_codegen(d->symbol, 1), scratch_name_low8(initex->reg));
+      scratch_free(initex->reg);      
       break;
     case TYPE_STRING:
       break;
@@ -701,10 +705,11 @@ void decl_codegen(decl* d) {
     }
     break;
   
-  default:
-    printf("Error: disallowed declaration, exiting.\n");
-    exit(1);
-    break;
+    default:
+      printf("Error: disallowed declaration, exiting.\n");
+      exit(1);
+      break;
+  }
   }
 
   decl_codegen(d->next);

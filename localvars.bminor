@@ -1,31 +1,14 @@
 main:function void ()=
 {
 	x:integer = 1;
-	y:integer = 1;
+	y:integer = 2;
 	z:char = 'a';
-	v:integer = 1;
+	v:integer = 3;
 	w:boolean = true;
-	u:integer = 1;
+	u:integer = 4;
 	n:char = 'b';	
 	arr:array [10] integer = {1,2,3,4,5,6,7,8,9,10};
 	charr:array [10] char = {'1','2','3','4','5','6','7','8','9','0'};
-
-	x = 1;
-	z = 'b';
-	w = true;
-	n = 'e';
-	y = 2;
-	z = 'b';
-	w = true;
-	n = 'e';
-	v = 3;
-	z = 'b';
-	w = true;
-	n = 'e';
-	u = 4;
-	z = 'b';
-	w = true;
-	n = 'e';
 	
 	//print ints
 	print x, " ", y, " ", v, " ", u, "\n";
