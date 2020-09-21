@@ -11,6 +11,7 @@ extern struct hash_table* string_store;
 
 const int SCRATCH_S = 7;
 const char* name[] = {"rbx", "r10", "r11", "r12", "r13", "r14", "r15"};
+const char* namelow8[] = {"bl", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"};
 reg_use inuse[] = {FREE, FREE, FREE, FREE, FREE, FREE, FREE};
 
 const int ARG_REGS_S = 6;
@@ -40,6 +41,7 @@ const char* argreg_name(int r) {
 
   return nlab;
 }
+
 
 int scratch_alloc() {
 
@@ -76,6 +78,16 @@ const char* scratch_name(int r) {
   }
 
   return name[r];
+}
+
+const char* scratch_name_low8(int r) {
+
+  if (r < 0 || r >= SCRATCH_S) {
+    printf("Error: no register numbered %d.\n", r);
+    exit(1);
+  }
+
+  return namelow8[r];
 }
 
 int label_create() {

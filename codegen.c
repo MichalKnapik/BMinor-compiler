@@ -451,7 +451,14 @@ void expr_codegen(expr* e) {
 	codegen_variable_reference(e->left);
 	expr_codegen(e->right);
 	//e->right->reg contains the data (or ref to string, because refs to arrays are forbidden)
-	printf("mov [%s], %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+
+	if (e->left->symbol->type->kind == TYPE_BOOLEAN || e->left->symbol->type->kind == TYPE_CHARACTER) { //bytes
+	  printf("mov [%s], %s\n", scratch_name(e->left->reg), scratch_name_low8(e->right->reg));
+	}
+	else { //quads
+	  printf("mov [%s], %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+	}
+
       }
     }
     //e->left->reg contains the address of array element/variable
@@ -670,11 +677,33 @@ void decl_codegen(decl* d) {
     break;
 
   case SYMBOL_LOCAL:
-    //TODO
+    //todo now - init local vars
+    //no local fun decls, only vars
+    printf("section .text\n");
+    switch (d->type->kind) {
+
+    case TYPE_INTEGER:
+      /* if (d->value->kind != EXPR_INT) {is_error = 1; break;} */
+      /* printf("%s dq %d\n", d->name, d->value->literal_value); */
+      break;
+    case TYPE_BOOLEAN:
+      break;
+    case TYPE_CHARACTER:
+      break;
+    case TYPE_STRING:
+      break;
+    case TYPE_ARRAY: {
+      break;
+    }
+    default:
+      printf("Error: disallowed local declaration, exiting.\n");
+      exit(1);
+    }
     break;
-
+  
   default:
-
+    printf("Error: disallowed declaration, exiting.\n");
+    exit(1);
     break;
   }
 
@@ -692,3 +721,4 @@ void codegen_stack_fun_call_args(expr* arg) {
   scratch_free(arg->left->reg);
 
 }
+
