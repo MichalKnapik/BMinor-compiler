@@ -1,0 +1,65 @@
+main:function void ()=
+{
+	x:integer = 1;
+	y:integer = 1;
+	z:char = 'a';
+	v:integer = 1;
+	w:boolean = true;
+	u:integer = 1;
+	n:char = 'b';	
+	arr:array [10] integer = {1,2,3,4,5,6,7,8,9,10};
+	charr:array [10] char = {'1','2','3','4','5','6','7','8','9','0'};
+
+	x = 1;
+	z = 'b';
+	w = true;
+	n = 'e';
+	y = 2;
+	z = 'b';
+	w = true;
+	n = 'e';
+	v = 3;
+	z = 'b';
+	w = true;
+	n = 'e';
+	u = 4;
+	z = 'b';
+	w = true;
+	n = 'e';
+	
+	//print ints
+	print x, " ", y, " ", v, " ", u, "\n";
+
+	//print rest of primit. vals
+	print z, " ", n, " ", w, "\n";
+
+	//set num arr with squares
+	ctr:integer = 0;
+	for (ctr = 0; ctr < 10; ctr++) {
+	    arr[ctr] = ctr*ctr;
+	}
+
+	for (ctr = 0; ctr < 10; ctr++) {
+	print arr[ctr], " ";
+	}
+	print "\n";
+
+	//set char arr 
+	for (ctr = 0; ctr < 10; ctr++) {
+	if (ctr % 2 == 0) {
+	    charr[ctr] = 'n';
+	    }
+        else {
+	    charr[ctr] = 'a';
+	    }	     
+	}
+
+	for (ctr = 0; ctr < 10; ctr++) {
+	print charr[ctr], " ";
+	}
+	print "\n";
+
+
+}
+
+
