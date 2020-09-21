@@ -160,7 +160,10 @@ void expr_codegen(expr* e) {
       switch (e->symbol->kind) {
 
       case SYMBOL_LOCAL: //stack storage
-	printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));	
+	//probably paying for bad design here
+	if (e->symbol->type->kind == TYPE_STRING)	
+	printf("mov %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));
+	else printf("lea %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol, 1));	
 	break;
 
       case SYMBOL_GLOBAL: //copying label's address
@@ -682,6 +685,7 @@ void decl_codegen(decl* d) {
     expr* initex = d->value;
     switch (d->type->kind) {
 
+    case TYPE_STRING:
     case TYPE_INTEGER: {
       expr_codegen(initex);
       printf("mov %s, %s\n", symbol_codegen(d->symbol, 1), scratch_name(initex->reg));
@@ -694,9 +698,8 @@ void decl_codegen(decl* d) {
       printf("mov %s, %s\n", symbol_codegen(d->symbol, 1), scratch_name_low8(initex->reg));
       scratch_free(initex->reg);      
       break;
-    case TYPE_STRING:
-      break;
     case TYPE_ARRAY: {
+      //todo - implement me!
       break;
     }
     default:
