@@ -680,9 +680,15 @@ void decl_codegen(decl* d) {
     break;
 
   case SYMBOL_LOCAL: {
-    //todo now - init local vars
+
     //no local fun decls, only vars
     expr* initex = d->value;
+
+    if (initex == NULL) {
+      //default init is with mem junk
+      break;
+    }
+
     switch (d->type->kind) {
 
     case TYPE_STRING:
@@ -699,10 +705,6 @@ void decl_codegen(decl* d) {
       scratch_free(initex->reg);      
       break;
     case TYPE_ARRAY: {
-      if (initex == NULL) {
-	//if you want default inits, put it here
-	break;
-      }
       int stackoffset = -d->symbol->which;
       int tsize = type_size(d->type->subtype);
       while (initex != NULL) {
@@ -713,7 +715,6 @@ void decl_codegen(decl* d) {
 	stackoffset += tsize;
 	initex = initex->right;
       }
-
       break;
     }
     default:

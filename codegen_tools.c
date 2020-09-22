@@ -214,3 +214,27 @@ const char* rbp_offset(int offset) {
 
   return nlab;
 }
+
+void codegen_program_preamble() {
+  printf("section .data\n");
+  printf("EXIT_SUCCESS 	equ 	0\n");	
+  printf("SYS_exit 	equ 	60\n");
+}
+
+void codegen_program_epilogue() {
+  printf("last:\n");
+  printf("mov rax, SYS_exit\n");
+  printf("mov rdi, EXIT_SUCCESS\n");
+  printf("syscall\n");
+}
+
+void codegen_program_externs() {
+
+  printf("extern integer_power\n");
+  printf("extern print_integer\n");
+  printf("extern print_string\n");
+  printf("extern print_boolean\n");
+  printf("extern print_character\n");
+
+}
+
