@@ -491,8 +491,12 @@ void expr_codegen(expr* e) {
 
     printf("call %s\n", e->left->name);
     if (i - 6 > 0) printf("add rsp, %d\n", (i-6)*8); //clear stack post-call
-    //todo - pomyslec o rax i zwracaniu wartosci
+
     caller_restore_registers();
+
+    //copy rax to a new register - non-optimal, but simplifies stuff
+    e->reg = scratch_alloc();
+    printf("mov %s, rax\n", scratch_name(e->reg));
 
     break;
   }

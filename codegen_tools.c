@@ -12,7 +12,7 @@ extern struct hash_table* string_store;
 const int SCRATCH_S = 7;
 const char* name[] = {"rbx", "r10", "r11", "r12", "r13", "r14", "r15"}; 
 const char* namelow8[] = {"bl", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"};
-reg_use inuse[] = {FREE, FREE, FREE, FREE, FREE, FREE, FREE};
+reg_use inuse[] = {FREE, FREE, FREE, FREE, FREE, FREE, FREE, FREE};
 
 const int ARG_REGS_S = 6;
 const char* argregnames[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};

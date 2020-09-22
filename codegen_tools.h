@@ -23,5 +23,6 @@ void codegen_variable_reference(expr* e);
 void codegen_program_preamble();
 void codegen_program_epilogue();  
 void codegen_program_externs();
+void rax_alloc(expr* e);
 
 #endif
