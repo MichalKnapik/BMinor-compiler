@@ -589,17 +589,20 @@ void stmt_codegen(stmt* s) {
       caller_save_registers();
       printf("mov rdi, %s\n", scratch_name(s->expr->left->reg));
 
-
-      if (is_expr_string(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_STRING)) 
+      if (is_expr_string(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_STRING)
+	  || (val->kind == EXPR_FUN_CALL && val->left->symbol->type->subtype->kind == TYPE_STRING)) 
 	printf("call print_string\n");
       else
-	if (is_expr_int(val)  || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_INTEGER))
+	if (is_expr_int(val)  || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_INTEGER)
+	  || (val->kind == EXPR_FUN_CALL && val->left->symbol->type->subtype->kind == TYPE_INTEGER))
 	  printf("call print_integer\n");
 	else
-	  if (is_expr_char(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_CHARACTER))
+	  if (is_expr_char(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_CHARACTER)
+	      || (val->kind == EXPR_FUN_CALL && val->left->symbol->type->subtype->kind == TYPE_CHARACTER))
 	    printf("call print_character\n");
 	  else
-	    if (is_expr_bool(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_BOOLEAN))
+	    if (is_expr_bool(val) || (val->kind == EXPR_NAME && val->symbol->type->kind == TYPE_BOOLEAN)
+		|| (val->kind == EXPR_FUN_CALL && val->left->symbol->type->subtype->kind == TYPE_BOOLEAN))
 	      printf("call print_boolean\n");
 	    else {
 	      printf("Error: currently can print only strings, chars, bools, and ints. Cowardly exiting.\n");
