@@ -19,5 +19,6 @@ void codegen_array_element_reference(expr* e);
 void codegen_variable_reference(expr* e);
 int count_args(expr* e);
 void print_global_array_elts(decl* d);
+const char* rbp_offset(int offset);
 
 #endif

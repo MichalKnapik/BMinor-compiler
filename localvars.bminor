@@ -1,71 +1,58 @@
+x:integer = 123;
 test:function void (s:string) = {
 	      print s, "\n";
+	      print "(", x, ")\n";
 }
 
 main:function void ()=
 {
-	test("no cujowo");
+	test("Hello from test function!\n");
 
 	x:integer = 1;
-	s1:string = "karakan";
+	s1:string = "one";
 	y:integer = 2;
 	z:char = 'a';
-	s2:string = "kartofelln";	
+	s2:string = "two";	
 	v:integer = 3;
 	w:boolean = true;
 	u:integer = 4;
 	n:char = 'b';
-	s3:string = "karabolmaqax";
+	s3:string = "threeeeeee";
 	arr:array [10] integer = {1,2,3,4,5,6,7,8,9,10};
-	charr:array [10] char = {'1','2','3','4','5','6','7','8','9','0'};
-	strrr:array [3] string = {"ele", "mele", "chuj"};	
+	strrr:array [3] string = {"I", "like", "apples"};
+	brrr:array [4] boolean = {true, false, true, true};		
+	charr:array [10] char = {'a','b','c','d','e','f','g','h','i','j'};
+
+	ctr:integer = 0;
 	
+	print "Printing vals right after init:\n";
+
 	//print ints
 	print x, " ", y, " ", v, " ", u, "\n";
 
 	//print strings
 	print s1, " ", s2, " ", s3, "\n";	
+
 	//print rest of primit. vals
 	print z, " ", n, " ", w, "\n";
-
-	//set num arr with squares
-	ctr:integer = 0;
-	for (ctr = 0; ctr < 10; ctr++) {
-	    arr[ctr] = ctr*ctr;
-	}
 
 	for (ctr = 0; ctr < 10; ctr++) {
 	print arr[ctr], " ";
 	}
 	print "\n";
 
-	//set char arr 
-	for (ctr = 0; ctr < 10; ctr++) {
-	if (ctr % 2 == 0) {
-	    charr[ctr] = 'n';
-	    }
-        else {
-	    charr[ctr] = 'a';
-	    }	     
-	}
-
 	for (ctr = 0; ctr < 10; ctr++) {
 	print charr[ctr], " ";
 	}
 	print "\n";
 
-	//set string arr 
-	for (ctr = 0; ctr < 3; ctr++) {
-	if (ctr % 2 == 0) {
-	    strrr[ctr] = "faj";
-	    }
-        else {
-	    strrr[ctr] = "baj";
-	    }	     
-	}
-
 	for (ctr = 0; ctr < 3; ctr++) {
 	print strrr[ctr], " ";
+	}
+	print "\n";
+
+	for (ctr = 0; ctr < 4; ctr++) {
+	print brrr[ctr], " ";
 	}
 	print "\n";
 

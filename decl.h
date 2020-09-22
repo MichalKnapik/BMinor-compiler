@@ -11,7 +11,7 @@ typedef struct decl {
 	struct expr *value;
 	struct stmt *code;
 	struct decl *next;
-        int rbpoffset; //the number of stack-allocated bytes
+        int rbpoffset; //in bytes
 	symbol *symbol;
 } decl;
 

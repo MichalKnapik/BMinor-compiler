@@ -34,7 +34,6 @@ const char* argreg_name(int r) {
   if (r >= 0 && r < ARG_REGS_S) return argregnames[r];
 
   int rbppos = (r - 6)*8 + 16;
-  get_number_of_positions(r);
   char* nlab = calloc((get_number_of_positions(r) + 5), sizeof(char));    
   strcpy(nlab, "rbp+");
   sprintf(nlab + 4, "%d", rbppos);
@@ -200,4 +199,18 @@ void print_global_array_elts(decl* d) {
   }
   printf("\n");
 
+}
+
+const char* rbp_offset(int offset) {
+  
+  char* nlab = calloc((get_number_of_positions(offset) + 2), sizeof(char));
+  strcpy(nlab, "rbp");
+  if (offset == 0) return nlab;
+  if (offset > 0) {
+    nlab[3] = '+';
+    sprintf(nlab + 4, "%d", offset);    
+  }
+  sprintf(nlab + 3, "%d", offset);
+
+  return nlab;
 }

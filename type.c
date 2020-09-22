@@ -30,7 +30,7 @@ int type_print_dot(type *t, int* global_counter) {
   int first = 0;
   if (t->params != NULL) print_with_bar_unless_first(&first, "<f0> params");
   if (t->subtype != NULL) print_with_bar_unless_first(&first, "<f1> subtype");
-  if (t->arrsize >= 0) {
+  if (t->arrsize >= 0 && t->kind == TYPE_ARRAY) {
     print_with_bar_unless_first(&first, " size = ");
     printf("%d", t->arrsize);
   }

@@ -699,7 +699,21 @@ void decl_codegen(decl* d) {
       scratch_free(initex->reg);      
       break;
     case TYPE_ARRAY: {
-      //todo - implement me!
+      if (initex == NULL) {
+	//if you want default inits, put it here
+	break;
+      }
+      int stackoffset = -d->symbol->which;
+      int tsize = type_size(d->type->subtype);
+      while (initex != NULL) {
+	expr_codegen(initex);
+	if (tsize == 8) printf("mov [%s], %s\n", rbp_offset(stackoffset), scratch_name(initex->reg));
+	else printf("mov [%s], %s\n", rbp_offset(stackoffset), scratch_name_low8(initex->reg));
+	scratch_free(initex->reg);      
+	stackoffset += tsize;
+	initex = initex->right;
+      }
+
       break;
     }
     default:
