@@ -491,7 +491,7 @@ void expr_codegen(expr* e) {
 
     printf("call %s\n", e->left->name);
     if (i - 6 > 0) printf("add rsp, %d\n", (i-6)*8); //clear stack post-call
-
+    //todo - pomyslec o rax i zwracaniu wartosci
     caller_restore_registers();
 
     break;

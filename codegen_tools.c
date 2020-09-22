@@ -10,7 +10,7 @@
 extern struct hash_table* string_store;
 
 const int SCRATCH_S = 7;
-const char* name[] = {"rbx", "r10", "r11", "r12", "r13", "r14", "r15"};
+const char* name[] = {"rbx", "r10", "r11", "r12", "r13", "r14", "r15"}; 
 const char* namelow8[] = {"bl", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"};
 reg_use inuse[] = {FREE, FREE, FREE, FREE, FREE, FREE, FREE};
 
@@ -62,7 +62,7 @@ void scratch_free(int r) {
   if (r == -1) return;
 
   if (r < -1 || r >= SCRATCH_S) {
-    printf("Error: no register numbered %d.\n", r);
+    printf("Error in scratch free: no register numbered %d.\n", r);
     exit(1);
   }
   
@@ -72,7 +72,7 @@ void scratch_free(int r) {
 const char* scratch_name(int r) {
 
   if (r < 0 || r >= SCRATCH_S) {
-    printf("Error: no register numbered %d.\n", r);
+    printf("Error in scratch name: no register numbered %d.\n", r);
     exit(1);
   }
 
@@ -82,7 +82,7 @@ const char* scratch_name(int r) {
 const char* scratch_name_low8(int r) {
 
   if (r < 0 || r >= SCRATCH_S) {
-    printf("Error: no register numbered %d.\n", r);
+    printf("Error in scratch name low: no register numbered %d.\n", r);
     exit(1);
   }
 
