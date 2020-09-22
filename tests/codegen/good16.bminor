@@ -1,8 +1,0 @@
-// tests strings/string assignments and printing 
-str:string = "hello";
-main:function integer () =
-{
-	print str;
-	str2:string = " world";
-	print str2;
-}

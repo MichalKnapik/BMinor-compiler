@@ -1,7 +1,0 @@
-// for loop without correct # of args
-main:function void()=
-{
-	for(i=0; i++) {
-		print i;
-	}
-}

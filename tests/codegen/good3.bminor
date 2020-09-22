@@ -1,5 +1,0 @@
-// tests multiplication
-main:function integer ()=
-{
-	return 5 * 2;
-}

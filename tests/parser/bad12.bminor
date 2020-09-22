@@ -1,7 +1,0 @@
-//test functions without equal signs in definition
-main: function void () = {
-	print "goodbye";
-}
-main2:function void () {
-	print "hello";
-}
