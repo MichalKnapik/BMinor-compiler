@@ -1,6 +1,7 @@
 CC		= gcc
 CCOPTS  	= -g -Wall 
 BISOPTS	        = --report=all
+ASM             = nasm
 
 all:	scanner_and_parser semantic_tools codegen
 	$(CC) $(CCOPTS) parser_and_scanner.o semantic_tools.o pass_and_codegen.o main.c -o bminor
@@ -24,10 +25,10 @@ parser.c parser.h: bminor.y
 scanner.c: bminor.l parser.h
 	flex --outfile=scanner.c bminor.l
 
-test:
-	. tests/scanner/run_all_tests.sh
-	. tests/parser/run_all_tests.sh
-	. tests/typecheck/run_all_tests.sh
+compile:
+	gcc -no-pie -Wall -g -c library.c 
+	$(ASM) -f elf64 $(src).asm
+	gcc -no-pie -g -m64 -lc library.o $(src).o -o $(src).bin
 
 clean:
-	rm -rf *~ *.yy.c *.o ltsNet *.tab.* *.dot \#* parser.h parser.c
+	rm -rf *~ *.yy.c *.o ltsNet *.tab.* *.dot \#* parser.h parser.c \#* *.lst
